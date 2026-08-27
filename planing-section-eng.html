@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agreements Management</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin: 0 0 25px;
+            font-size: 26px;
+        }
+
+        /* =========================
+           FILTERS
+        ========================= */
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-btn {
+            border: 1px solid #d0d5dd;
+            background: white;
+            color: #344054;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #f2f4f7;
+        }
+
+        .filter-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #eaecf0;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1300px;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #eaecf0;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            color: #475467;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        td {
+            color: #344054;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-finish {
+            background: #fef3f2;
+            color: #b42318;
+        }
+
+        .status-current {
+            background: #ecfdf3;
+            color: #027a48;
+        }
+
+        .status-future {
+            background: #eff8ff;
+            color: #175cd3;
+        }
+
+        .status-complete {
+            background: #f4f3ff;
+            color: #5925dc;
+        }
+
+        /* =========================
+           TYPE
+        ========================= */
+
+        .type {
+            font-weight: 500;
+        }
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #667085;
+        }
+
+        /* =========================
+           EXPORT
+        ========================= */
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            background: #16a34a;
+            color: white;
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .export-btn:hover {
+            background: #15803d;
+        }
+
+        .export-btn:active {
+            transform: translateY(1px);
+        }
+
+        .result-count {
+            margin: 10px 0;
+            color: #667085;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Agreements</h1>
+
+    <!-- =========================
+         FILTERS
+    ========================== -->
+
+    <div class="filters">
+
+        <button
+            class="filter-btn"
+            data-filter="finish"
+            onclick="filterAgreements('finish')">
+            Finish
+        </button>
+
+        <button
+            class="filter-btn"
+            data-filter="current"
+            onclick="filterAgreements('current')">
+            Current
+        </button>
+
+        <button
+            class="filter-btn"
+            data-filter="future"
+            onclick="filterAgreements('future')">
+            Future
+        </button>
+
+        <button
+            class="filter-btn"
+            data-filter="complete"
+            onclick="filterAgreements('complete')">
+            Complete
+        </button>
+
+        <button
+            class="filter-btn active"
+            data-filter="all"
+            onclick="filterAgreements('all')">
+            All
+        </button>
+
+    </div>
+
+    <div class="result-count" id="resultCount"></div>
+
+    <!-- =========================
+         TABLE
+    ========================== -->
+
+    <div class="table-container">
+
+        <table id="agreementsTable">
+
+            <thead>
+            <tr>
+                <th>Agreement Number</th>
+                <th>Agreement Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Work Details</th>
+                <th>Agreement Status</th>
+                <th>Cost</th>
+                <th>Cost Details</th>
+                <th>Agreement Type</th>
+            </tr>
+            </thead>
+
+            <tbody id="agreementsBody"></tbody>
+
+        </table>
+
+    </div>
+
+    <!-- =========================
+         EXPORT
+    ========================== -->
+
+    <div class="actions">
+
+        <button
+            class="export-btn"
+            onclick="exportToExcel()">
+
+            <span>📊</span>
+
+            Export to Excel
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+     * ==========================================
+     * AGREEMENT DATA
+     * ==========================================
+     *
+     * Replace this array with data from your
+     * Django API/database.
+     */
+
+    const agreements = [
+
+        {
+            number: 1001,
+            name: "Building Maintenance Agreement",
+            startDate: "2026-01-10",
+            endDate: "2026-06-30",
+            workDetails: "General building maintenance",
+            status: "finish",
+            cost: 25000,
+            costDetails: "Annual maintenance",
+            type: "current"
+        },
+
+        {
+            number: 1002,
+            name: "Software Development Agreement",
+            startDate: "2026-03-01",
+            endDate: "2026-12-31",
+            workDetails: "Mobile application development",
+            status: "current",
+            cost: 75000,
+            costDetails: "Development and support",
+            type: "economie"
+        },
+
+        {
+            number: 1003,
+            name: "Security Services Agreement",
+            startDate: "2027-01-01",
+            endDate: "2027-12-31",
+            workDetails: "Security and monitoring services",
+            status: "future",
+            cost: 50000,
+            costDetails: "Security services",
+            type: "current"
+        },
+
+        {
+            number: 1004,
+            name: "Network Infrastructure Agreement",
+            startDate: "2025-01-01",
+            endDate: "2025-12-31",
+            workDetails: "Network infrastructure maintenance",
+            status: "complete",
+            cost: 40000,
+            costDetails: "Infrastructure maintenance",
+            type: "economie"
+        },
+
+        {
+            number: 1005,
+            name: "Cleaning Services Agreement",
+            startDate: "2026-02-01",
+            endDate: "2026-08-31",
+            workDetails: "Office cleaning services",
+            status: "current",
+            cost: 18000,
+            costDetails: "Monthly cleaning services",
+            type: "current"
+        },
+
+        {
+            number: 1006,
+            name: "Electrical Maintenance Agreement",
+            startDate: "2025-05-01",
+            endDate: "2026-05-01",
+            workDetails: "Electrical maintenance and repair",
+            status: "finish",
+            cost: 32000,
+            costDetails: "Electrical services",
+            type: "economie"
+        }
+
+    ];
+
+
+    /*
+     * ==========================================
+     * CURRENT FILTERED DATA
+     * ==========================================
+     */
+
+    let filteredAgreements = [...agreements];
+
+
+    /*
+     * ==========================================
+     * INITIALIZE
+     * ==========================================
+     *
+     * Default filter = ALL
+     */
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        filterAgreements("all");
+
+    });
+
+
+    /*
+     * ==========================================
+     * FILTER
+     * ==========================================
+     */
+
+    function filterAgreements(filter) {
+
+        /*
+         * Update active button
+         */
+
+        document.querySelectorAll(".filter-btn")
+            .forEach(button => {
+
+                button.classList.remove("active");
+
+                if (button.dataset.filter === filter) {
+                    button.classList.add("active");
+                }
+
+            });
+
+
+        /*
+         * Filter records
+         */
+
+        if (filter === "all") {
+
+            filteredAgreements = [...agreements];
+
+        } else {
+
+            filteredAgreements = agreements.filter(
+                agreement => agreement.status === filter
+            );
+
+        }
+
+
+        /*
+         * Update table
+         */
+
+        renderTable();
+
+    }
+
+
+    /*
+     * ==========================================
+     * RENDER TABLE
+     * ==========================================
+     */
+
+    function renderTable() {
+
+        const tbody = document.getElementById("agreementsBody");
+
+        tbody.innerHTML = "";
+
+
+        /*
+         * Empty state
+         */
+
+        if (filteredAgreements.length === 0) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="9"
+                        class="empty-state">
+                        No agreements found.
+                    </td>
+                </tr>
+            `;
+
+            updateResultCount();
+
+            return;
+        }
+
+
+        /*
+         * Render rows
+         */
+
+        filteredAgreements.forEach(agreement => {
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+
+                <td>
+                    ${agreement.number}
+                </td>
+
+                <td>
+                    ${escapeHtml(agreement.name)}
+                </td>
+
+                <td>
+                    ${formatDate(agreement.startDate)}
+                </td>
+
+                <td>
+                    ${formatDate(agreement.endDate)}
+                </td>
+
+                <td>
+                    ${escapeHtml(agreement.workDetails)}
+                </td>
+
+                <td>
+                    <span class="
+                        status
+                        status-${agreement.status}
+                    ">
+                        ${capitalize(agreement.status)}
+                    </span>
+                </td>
+
+                <td>
+                    ${formatCost(agreement.cost)}
+                </td>
+
+                <td>
+                    ${escapeHtml(agreement.costDetails)}
+                </td>
+
+                <td>
+                    <span class="type">
+                        ${capitalize(agreement.type)}
+                    </span>
+                </td>
+
+            `;
+
+            tbody.appendChild(row);
+
+        });
+
+
+        updateResultCount();
+
+    }
+
+
+    /*
+     * ==========================================
+     * RESULT COUNT
+     * ==========================================
+     */
+
+    function updateResultCount() {
+
+        const count = filteredAgreements.length;
+
+        document.getElementById("resultCount").textContent =
+            `${count} agreement${count === 1 ? "" : "s"} found`;
+
+    }
+
+
+    /*
+     * ==========================================
+     * DATE FORMAT
+     * ==========================================
+     */
+
+    function formatDate(date) {
+
+        if (!date) {
+            return "";
+        }
+
+        const parsedDate = new Date(date);
+
+        return parsedDate.toLocaleDateString(
+            "en-US",
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
+
+    }
+
+
+    /*
+     * ==========================================
+     * COST FORMAT
+     * ==========================================
+     */
+
+    function formatCost(cost) {
+
+        return new Intl.NumberFormat(
+            "en-US",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        ).format(cost);
+
+    }
+
+
+    /*
+     * ==========================================
+     * CAPITALIZE
+     * ==========================================
+     */
+
+    function capitalize(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        return value.charAt(0).toUpperCase() + value.slice(1);
+
+    }
+
+
+    /*
+     * ==========================================
+     * HTML ESCAPE
+     * ==========================================
+     */
+
+    function escapeHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    /*
+     * ==========================================
+     * EXPORT FILTERED DATA TO EXCEL
+     * ==========================================
+     */
+
+    function exportToExcel() {
+
+        /*
+         * Convert only the currently filtered
+         * agreements to Excel.
+         */
+
+        const excelData = filteredAgreements.map(
+            agreement => ({
+
+                "Agreement Number":
+                    agreement.number,
+
+                "Agreement Name":
+                    agreement.name,
+
+                "Start Date":
+                    agreement.startDate,
+
+                "End Date":
+                    agreement.endDate,
+
+                "Work Details":
+                    agreement.workDetails,
+
+                "Agreement Status":
+                    capitalize(agreement.status),
+
+                "Cost":
+                    agreement.cost,
+
+                "Cost Details":
+                    agreement.costDetails,
+
+                "Agreement Type":
+                    capitalize(agreement.type)
+
+            })
+        );
+
+
+        /*
+         * Create worksheet
+         */
+
+        const worksheet =
+            XLSX.utils.json_to_sheet(excelData);
+
+
+        /*
+         * Create workbook
+         */
+
+        const workbook =
+            XLSX.utils.book_new();
+
+
+        /*
+         * Add worksheet
+         */
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Agreements"
+        );
+
+
+        /*
+         * Export file
+         */
+
+        XLSX.writeFile(
+            workbook,
+            "filtered_agreements.xlsx"
+        );
+
+    }
+
+</script>
+
+</body>
+</html>
