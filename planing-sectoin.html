@@ -7,11 +7,9 @@
 
     <title>إدارة الاتفاقيات</title>
 
-    <!-- Excel Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -38,23 +36,39 @@
             font-size: 26px;
         }
 
-        /* =========================
-           FILTERS
-        ========================= */
-
         .filters {
             display: flex;
-            gap: 10px;
+            align-items: flex-end;
+            gap: 20px;
             overflow-x: auto;
             padding-bottom: 15px;
             margin-bottom: 5px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #344054;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
         }
 
         .filter-btn {
             border: 1px solid #d0d5dd;
             background: white;
             color: #344054;
-            padding: 10px 24px;
+            padding: 10px 20px;
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
@@ -73,19 +87,29 @@
             border-color: #2563eb;
         }
 
-        /* =========================
-           RESULT COUNT
-        ========================= */
+        .clear-filters-btn {
+            border: 1px solid #d0d5dd;
+            background: #fef2f2;
+            color: #b42318;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+            font-family: inherit;
+            font-weight: 600;
+        }
+
+        .clear-filters-btn:hover {
+            background: #fee2e2;
+        }
 
         .result-count {
             margin: 10px 0;
             color: #667085;
             font-size: 13px;
         }
-
-        /* =========================
-           TABLE
-        ========================= */
 
         .table-container {
             width: 100%;
@@ -131,10 +155,6 @@
             border-bottom: none;
         }
 
-        /* =========================
-           STATUS
-        ========================= */
-
         .status {
             display: inline-flex;
             align-items: center;
@@ -159,22 +179,24 @@
             color: #175cd3;
         }
 
-        .status-complete {
-            background: #f4f3ff;
-            color: #5925dc;
-        }
-
-        /* =========================
-           TYPE
-        ========================= */
-
         .type {
-            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        /* =========================
-           EMPTY STATE
-        ========================= */
+        .type-current {
+            background: #ecfdf3;
+            color: #027a48;
+        }
+
+        .type-investment {
+            background: #fff7ed;
+            color: #c2410c;
+        }
 
         .empty-state {
             text-align: center !important;
@@ -182,14 +204,11 @@
             color: #667085;
         }
 
-        /* =========================
-           ACTIONS
-        ========================= */
-
         .actions {
             display: flex;
             justify-content: flex-start;
             margin-top: 20px;
+            gap: 12px;
         }
 
         .export-btn {
@@ -215,12 +234,7 @@
             transform: translateY(1px);
         }
 
-        /* =========================
-           MOBILE
-        ========================= */
-
         @media (max-width: 768px) {
-
             body {
                 padding: 15px;
             }
@@ -233,8 +247,20 @@
                 font-size: 22px;
             }
 
-        }
+            .filters {
+                align-items: flex-start;
+                flex-direction: column;
+            }
 
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-buttons {
+                overflow-x: auto;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -250,47 +276,99 @@
 
     <div class="filters">
 
-        <button
-            class="filter-btn"
-            data-filter="finish"
-            onclick="filterAgreements('finish')">
-            منتهية
-        </button>
+        <!-- حالة الاتفاقية -->
 
-        <button
-            class="filter-btn"
-            data-filter="current"
-            onclick="filterAgreements('current')">
-            حالية
-        </button>
+        <div class="filter-group">
 
-        <button
-            class="filter-btn"
-            data-filter="future"
-            onclick="filterAgreements('future')">
-            مستقبلية
-        </button>
+            <div class="filter-label">
+                حالة الاتفاقية
+            </div>
 
-        <button
-            class="filter-btn"
-            data-filter="complete"
-            onclick="filterAgreements('complete')">
-            مكتملة
-        </button>
+            <div class="filter-buttons">
 
-        <button
-            class="filter-btn active"
-            data-filter="all"
-            onclick="filterAgreements('all')">
-            الكل
-        </button>
+                <button
+                    class="filter-btn"
+                    data-filter="status-finish"
+                    onclick="toggleFilter('status', 'finish')">
+                    منتهية
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="status-current"
+                    onclick="toggleFilter('status', 'current')">
+                    حالية
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="status-future"
+                    onclick="toggleFilter('status', 'future')">
+                    مستقبلية
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- نوع الاتفاقية -->
+
+        <div class="filter-group">
+
+            <div class="filter-label">
+                نوع الاتفاقية
+            </div>
+
+            <div class="filter-buttons">
+
+                <button
+                    class="filter-btn"
+                    data-filter="type-current"
+                    onclick="toggleFilter('type', 'current')">
+                    جاري
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="type-investment"
+                    onclick="toggleFilter('type', 'investment')">
+                    استثماري
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- زر إلغاء الفلترة -->
+
+        <div class="filter-group">
+
+            <div class="filter-label">
+                &nbsp;
+            </div>
+
+            <div class="filter-buttons">
+
+                <button
+                    class="clear-filters-btn"
+                    onclick="clearFilters()">
+                    ✕ إلغاء الفلترة
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
+
 
     <div
         class="result-count"
         id="resultCount">
     </div>
+
 
     <!-- =========================
          TABLE
@@ -332,6 +410,7 @@
 
     </div>
 
+
     <!-- =========================
          EXPORT
     ========================== -->
@@ -355,11 +434,9 @@
 
 <script>
 
-    /*
-     * ==========================================
-     * AGREEMENT DATA
-     * ==========================================
-     */
+    /* ==========================================
+       AGREEMENT DATA
+    ========================================== */
 
     const agreements = [
 
@@ -384,7 +461,7 @@
             status: "current",
             cost: 75000,
             costDetails: "التطوير والدعم الفني",
-            type: "economie"
+            type: "investment"
         },
 
         {
@@ -405,10 +482,10 @@
             startDate: "2025-01-01",
             endDate: "2025-12-31",
             workDetails: "صيانة البنية التحتية للشبكة",
-            status: "complete",
+            status: "finish",
             cost: 40000,
             costDetails: "صيانة البنية التحتية",
-            type: "economie"
+            type: "investment"
         },
 
         {
@@ -432,17 +509,15 @@
             status: "finish",
             cost: 32000,
             costDetails: "خدمات كهربائية",
-            type: "economie"
+            type: "investment"
         }
 
     ];
 
 
-    /*
-     * ==========================================
-     * ARABIC TRANSLATIONS
-     * ==========================================
-     */
+    /* ==========================================
+       ARABIC TRANSLATIONS
+    ========================================== */
 
     const statusArabic = {
 
@@ -450,113 +525,126 @@
 
         current: "حالية",
 
-        future: "مستقبلية",
-
-        complete: "مكتملة"
+        future: "مستقبلية"
 
     };
 
 
     const typeArabic = {
 
-        current: "حالية",
+        current: "جاري",
 
-        economie: "اقتصادية"
+        investment: "استثماري"
 
     };
 
 
-    /*
-     * ==========================================
-     * CURRENT FILTERED DATA
-     * ==========================================
-     */
+    /* ==========================================
+       CURRENT FILTERS (Object to hold multiple filters)
+    ========================================== */
 
-    let filteredAgreements = [...agreements];
+    let activeFilters = {
+        status: null,  // يمكن أن يكون: null, "finish", "current", "future"
+        type: null     // يمكن أن يكون: null, "current", "investment"
+    };
 
 
-    /*
-     * ==========================================
-     * INITIALIZE
-     * ==========================================
-     *
-     * Default filter = ALL
-     */
+    /* ==========================================
+       INITIALIZE
+    ========================================== */
 
     document.addEventListener(
         "DOMContentLoaded",
         function () {
-
-            filterAgreements("all");
-
+            renderTable();
         }
     );
 
 
-    /*
-     * ==========================================
-     * FILTER AGREEMENTS
-     * ==========================================
-     */
+    /* ==========================================
+       TOGGLE FILTER (AND logic)
+    ========================================== */
 
-    function filterAgreements(filter) {
+    function toggleFilter(category, value) {
 
-        /*
-         * Update active filter button
-         */
-
-        document
-            .querySelectorAll(".filter-btn")
-            .forEach(button => {
-
-                button.classList.remove("active");
-
-                if (
-                    button.dataset.filter === filter
-                ) {
-
-                    button.classList.add("active");
-
-                }
-
-            });
-
-
-        /*
-         * Filter records
-         */
-
-        if (filter === "all") {
-
-            filteredAgreements = [
-                ...agreements
-            ];
-
+        // إذا كان الفلتر نفسه مضغوطاً بالفعل، نقوم بإلغائه
+        if (activeFilters[category] === value) {
+            activeFilters[category] = null;
         } else {
-
-            filteredAgreements =
-                agreements.filter(
-                    agreement =>
-                        agreement.status === filter
-                );
-
+            activeFilters[category] = value;
         }
 
+        // تحديث الواجهة (تحديد الأزرار النشطة)
+        updateFilterButtons();
 
-        /*
-         * Render table
-         */
-
+        // إعادة عرض الجدول
         renderTable();
 
     }
 
 
-    /*
-     * ==========================================
-     * RENDER TABLE
-     * ==========================================
-     */
+    /* ==========================================
+       UPDATE FILTER BUTTONS (Active/Inactive)
+    ========================================== */
+
+    function updateFilterButtons() {
+
+        // إزالة الكلاس النشط من جميع الأزرار
+        document
+            .querySelectorAll(".filter-btn")
+            .forEach(button => {
+                button.classList.remove("active");
+            });
+
+        // إضافة الكلاس النشط للأزرار المطابقة للفلترات النشطة
+        if (activeFilters.status) {
+            const statusBtn = document.querySelector(
+                `[data-filter="status-${activeFilters.status}"]`
+            );
+            if (statusBtn) {
+                statusBtn.classList.add("active");
+            }
+        }
+
+        if (activeFilters.type) {
+            const typeBtn = document.querySelector(
+                `[data-filter="type-${activeFilters.type}"]`
+            );
+            if (typeBtn) {
+                typeBtn.classList.add("active");
+            }
+        }
+
+    }
+
+
+    /* ==========================================
+       CLEAR ALL FILTERS
+    ========================================== */
+
+    function clearFilters() {
+
+        activeFilters = {
+            status: null,
+            type: null
+        };
+
+        // إزالة الكلاس النشط من جميع الأزرار
+        document
+            .querySelectorAll(".filter-btn")
+            .forEach(button => {
+                button.classList.remove("active");
+            });
+
+        // إعادة عرض الجدول
+        renderTable();
+
+    }
+
+
+    /* ==========================================
+       RENDER TABLE (with AND logic)
+    ========================================== */
 
     function renderTable() {
 
@@ -565,16 +653,35 @@
                 "agreementsBody"
             );
 
+
         tbody.innerHTML = "";
 
 
-        /*
-         * Empty state
-         */
+        // تطبيق الفلترة بمنطق AND
+        filteredAgreements = agreements.filter(agreement => {
 
-        if (
-            filteredAgreements.length === 0
-        ) {
+            let match = true;
+
+            // فلترة حسب حالة الاتفاقية
+            if (activeFilters.status !== null) {
+                if (agreement.status !== activeFilters.status) {
+                    match = false;
+                }
+            }
+
+            // فلترة حسب نوع الاتفاقية
+            if (activeFilters.type !== null && match) {
+                if (agreement.type !== activeFilters.type) {
+                    match = false;
+                }
+            }
+
+            return match;
+
+        });
+
+
+        if (filteredAgreements.length === 0) {
 
             tbody.innerHTML = `
 
@@ -584,7 +691,7 @@
                         colspan="9"
                         class="empty-state">
 
-                        لا توجد اتفاقيات.
+                        لا توجد اتفاقيات تطابق الفلترة المحددة.
 
                     </td>
 
@@ -598,10 +705,6 @@
 
         }
 
-
-        /*
-         * Render rows
-         */
 
         filteredAgreements.forEach(
             agreement => {
@@ -671,7 +774,10 @@
 
                     <td>
 
-                        <span class="type">
+                        <span class="
+                            type
+                            type-${agreement.type}
+                        ">
 
                             ${
                                 typeArabic[
@@ -697,11 +803,9 @@
     }
 
 
-    /*
-     * ==========================================
-     * RESULT COUNT
-     * ==========================================
-     */
+    /* ==========================================
+       RESULT COUNT
+    ========================================== */
 
     function updateResultCount() {
 
@@ -709,25 +813,37 @@
             filteredAgreements.length;
 
 
+        // عرض عدد النتائج مع توضيح الفلترات النشطة
+        let filterText = "";
+        const statusLabel = activeFilters.status ? statusArabic[activeFilters.status] : null;
+        const typeLabel = activeFilters.type ? typeArabic[activeFilters.type] : null;
+
+        if (statusLabel && typeLabel) {
+            filterText = ` (حالة: ${statusLabel}، نوع: ${typeLabel})`;
+        } else if (statusLabel) {
+            filterText = ` (حالة: ${statusLabel})`;
+        } else if (typeLabel) {
+            filterText = ` (نوع: ${typeLabel})`;
+        }
+
         document.getElementById(
             "resultCount"
         ).textContent =
-
-            `عدد الاتفاقيات: ${count}`;
+            `عدد الاتفاقيات: ${count}${filterText}`;
 
     }
 
 
-    /*
-     * ==========================================
-     * DATE FORMAT
-     * ==========================================
-     */
+    /* ==========================================
+       DATE FORMAT
+    ========================================== */
 
     function formatDate(date) {
 
         if (!date) {
+
             return "";
+
         }
 
 
@@ -747,11 +863,9 @@
     }
 
 
-    /*
-     * ==========================================
-     * COST FORMAT
-     * ==========================================
-     */
+    /* ==========================================
+       COST FORMAT
+    ========================================== */
 
     function formatCost(cost) {
 
@@ -766,11 +880,9 @@
     }
 
 
-    /*
-     * ==========================================
-     * HTML ESCAPE
-     * ==========================================
-     */
+    /* ==========================================
+       HTML ESCAPE
+    ========================================== */
 
     function escapeHtml(value) {
 
@@ -814,20 +926,11 @@
     }
 
 
-    /*
-     * ==========================================
-     * EXPORT TO EXCEL
-     * ==========================================
-     *
-     * Only the currently filtered records
-     * will be exported.
-     */
+    /* ==========================================
+       EXPORT TO EXCEL
+    ========================================== */
 
     function exportToExcel() {
-
-        /*
-         * Check if there is data
-         */
 
         if (
             filteredAgreements.length === 0
@@ -841,11 +944,6 @@
 
         }
 
-
-        /*
-         * Convert filtered data
-         * to Excel format
-         */
 
         const excelData =
             filteredAgreements.map(
@@ -886,46 +984,38 @@
             );
 
 
-        /*
-         * Create worksheet
-         */
-
         const worksheet =
             XLSX.utils.json_to_sheet(
                 excelData
             );
 
 
-        /*
-         * Set RTL direction
-         */
-
         worksheet["!cols"] = [
 
             { wch: 18 },
+
             { wch: 30 },
+
             { wch: 18 },
+
             { wch: 18 },
+
             { wch: 40 },
+
             { wch: 20 },
+
             { wch: 15 },
+
             { wch: 30 },
+
             { wch: 20 }
 
         ];
 
 
-        /*
-         * Create workbook
-         */
-
         const workbook =
             XLSX.utils.book_new();
 
-
-        /*
-         * Add worksheet
-         */
 
         XLSX.utils.book_append_sheet(
             workbook,
@@ -933,10 +1023,6 @@
             "الاتفاقيات"
         );
 
-
-        /*
-         * Export file
-         */
 
         XLSX.writeFile(
             workbook,
