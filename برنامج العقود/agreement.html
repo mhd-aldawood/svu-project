@@ -5,27 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إنشاء اتفاقية</title>
     <!-- مكتبة تحويل الصفحة إلى PDF -->
-    <script src="https://cloudflare.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        .container { text-align: center; }
-        select { padding: 10px; font-size: 16px; width: 250px; margin-bottom: 20px; }
+        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f5f7fa; color: #333; }
+        .container { text-align: center; max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; }
+        select { padding: 12px; font-size: 16px; width: 280px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; }
         
-        /* تنسيق الجدول */
-        #educational-table-section { display: none; margin-top: 30px; text-align: right; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: #f9f9f9; }
-        th, td { border: 1px solid #ccc; padding: 12px; text-align: right; }
-        th { background-color: #f2f2f2; width: 30%; }
+        /* تنسيق الجداول الرئيسية */
+        .agreement-section { display: none; margin-top: 30px; text-align: right; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 900px; margin-left: auto; margin-right: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: #fff; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+        th { background-color: #f8f9fa; width: 30%; color: #2c3e50; }
         
-        /* تنسيق الحقول داخل الجدول */
-        input[type="text"], input[type="number"], input[type="date"], select.table-input {
-            width: 95%; padding: 8px; font-size: 14px; border: 1px solid #aaa; border-radius: 4px;
+        /* تنسيق الحقول */
+        input[type="text"], input[type="number"], input[type="date"], select.table-input, textarea {
+            width: 100%; padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
         }
+        textarea { resize: vertical; height: 100px; }
         
-        .btn-container { margin-top: 20px; text-align: center; }
-        .pdf-btn { padding: 12px 25px; font-size: 16px; background-color: #27ae60; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        /* الأقسام الديناميكية لطريقة الدفع */
+        .payment-text-container, .payment-table-container { display: none; margin-top: 10px; }
+        
+        /* تنسيق جدول الدفع الفرعي */
+        .sub-table { width: 100%; margin-top: 5px; background-color: #fff; }
+        .sub-table th { background-color: #e9ecef; width: auto; text-align: center; }
+        .sub-table td { text-align: center; }
+        
+        /* حاوية الأزرار وخيارات العرض */
+        .controls-container { margin-top: 30px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 900px; margin-left: auto; margin-right: auto; text-align: center; display: none; }
+        .btn-group { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .btn { padding: 12px 25px; font-size: 15px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        .pdf-btn { background-color: #27ae60; color: white; }
         .pdf-btn:hover { background-color: #219150; }
-        .back-link { display: block; margin-top: 30px; text-align: center; color: #3498db; text-decoration: none; }
+        .print-btn { background-color: #2980b9; color: white; }
+        .print-btn:hover { background-color: #2471a3; }
+        .upload-btn { background-color: #f39c12; color: white; position: relative; }
+        .upload-btn:hover { background-color: #d68910; }
+        .upload-btn input[type="file"] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        
+        .checkbox-container { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; color: #555; background: #f8f9fa; padding: 8px 15px; border-radius: 4px; border: 1px solid #ddd; }
+        .checkbox-container input { width: 18px; height: 18px; cursor: pointer; }
+        
+        /* منطقة نص العقد الإضافي */
+        .contract-text-area { margin-top: 20px; text-align: right; }
+        
+        .back-link { display: block; margin-top: 30px; text-align: center; color: #3498db; text-decoration: none; font-weight: bold; }
+        .back-link:hover { text-decoration: underline; }
+
+        /* إخفاء عناصر الإدخال الفارغة عند تفعيل خيار الإخفاء */
+        .hide-empty input:placeholder-shown, 
+        .hide-empty select:invalid,
+        .hide-empty textarea:placeholder-shown {
+            visibility: hidden;
+        }
+        .hide-empty .hidden-element {
+            display: none !important;
+        }
+
+        /* تنسيحات الطباعة */
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .container, .controls-container, .back-link, select, .upload-btn, button, input[type="file"] { display: none !important; }
+            .agreement-section { display: block !important; box-shadow: none; padding: 0; margin: 0; }
+            th, td { border: 1px solid #000; padding: 8px; }
+            input, select, textarea { border: none !important; background: transparent !important; padding: 0 !important; appearance: none; -webkit-appearance: none; }
+        }
     </style>
 </head>
 <body>
@@ -35,18 +80,17 @@
         <label for="agreement-type">اختر نوع الاتفاقية:</label>
         <br><br>
         
-        <!-- القائمة المنسدلة بعد إضافة الخيار الجديد -->
         <select id="agreement-type" onchange="checkAgreementType()">
             <option value="">-- اختر من القائمة --</option>
             <option value="educational">اتفاقية محتوى تعليمي</option>
-            <option value="commercial">اتفاقية تجارية</option>
-            <option value="employment">اتفاقية عمل</option>
+            <option value="commercial">اتفاقية مركز نفاذ</option>
+            <option value="lifetime">مركز التعلم مدى الحياة</option>
         </select>
     </div>
 
     <!-- قسم الجدول الخاص باتفاقية المحتوى التعليمي -->
-    <div id="educational-table-section">
-        <div id="pdf-content">
+    <div id="educational-table-section" class="agreement-section">
+        <div class="pdf-content">
             <h2 style="text-align: center; margin-bottom: 20px;">تفاصيل اتفاقية محتوى تعليمي</h2>
             <table>
                 <tr>
@@ -63,7 +107,14 @@
                 </tr>
                 <tr>
                     <th>موضوع الاتفاقية</th>
-                    <td><input type="text" placeholder="أدخل موضوع الاتفاقية"></td>
+                    <td><input type="text" placeholder="أدخل موضوع الاتفاقية">
+                     <button class="btn print-btn" onclick="printContract()">طباعة نص العقد</button>
+            <button class="btn upload-btn">
+                <span>تحميل نص العقد (TXT)</span>
+                <input type="file" id="txt-uploader" accept=".txt" onchange="handleFileUpload(this)">
+            </button>
+                    </td>
+
                 </tr>
                 <tr>
                     <th>المقررات الاضافية المكلف بها</th>
@@ -83,7 +134,34 @@
                 </tr>
                 <tr>
                     <th>طريقة الدفع</th>
-                    <td><input type="text" placeholder="مثال: نقداً، تحويل بنكي"></td>
+                    <td>
+                        <select class="table-input payment-method" onchange="togglePaymentMethod(this)">
+                            <option value="">-- اختر طريقة الدفع --</option>
+                            <option value="text">نص</option>
+                            <option value="table">جدول</option>
+                        </select>
+                        
+                        <div class="payment-text-container">
+                            <input type="text" placeholder="أدخل تفاصيل وشروط الدفع هنا...">
+                        </div>
+                        
+                        <div class="payment-table-container">
+                            <table class="sub-table">
+                                <thead>
+                                    <tr>
+                                        <th>الدفعة</th>
+                                        <th>المبلغ</th>
+                                        <th>تاريخ الاستحقاق</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>الدفعة الأولى</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                    <tr><td>الدفعة الثانية</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                    <tr><td>الدفعة الثالثة</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <th>المبلغ المستحق الفصلي</th>
@@ -107,46 +185,319 @@
                     </td>
                 </tr>
             </table>
+            <div class="contract-text-area"></div>
         </div>
+    </div>
 
-        <!-- زر تحويل الملف إلى PDF -->
-        <div class="btn-container">
-            <button class="pdf-btn" onclick="generatePDF()">تحويل ملف العقد إلى PDF</button>
+    <!-- قسم الجدول الخاص باتفاقية مركز نفاذ -->
+    <div id="commercial-table-section" class="agreement-section">
+        <div class="pdf-content">
+            <h2 style="text-align: center; margin-bottom: 20px;">تفاصيل اتفاقية مركز نفاذ</h2>
+            <table>
+                <tr>
+                    <th>رقم الاتفاقية</th>
+                    <td><input type="text" placeholder="أدخل رقم الاتفاقية"></td>
+                </tr>
+                <tr>
+                    <th>اسم الاتفاقية</th>
+                    <td><input type="text" placeholder="أدخل اسم الاتفاقية"></td>
+                </tr>
+                <tr>
+                    <th>اسم الشركة المتعاقد معها</th>
+                    <td><input type="text" placeholder="أدخل اسم الشركة"></td>
+                </tr>
+                <tr>
+                    <th>موضوع الاتفاقية</th>
+                    <td><input type="text" placeholder="أدخل موضوع الاتفاقية"></td>
+                </tr>
+                <tr>
+                    <th>الكلفة التقديرية</th>
+                    <td><input type="number" placeholder="0.00"></td>
+                </tr>
+                <tr>
+                    <th>بداية الاتفاقية</th>
+                    <td><input type="date"></td>
+                </tr>
+                <tr>
+                    <th>نهاية الاتفاقية</th>
+                    <td><input type="date"></td>
+                </tr>
+                <tr>
+                    <th>طريقة الدفع</th>
+                    <td>
+                        <select class="table-input payment-method" onchange="togglePaymentMethod(this)">
+                            <option value="">-- اختر طريقة الدفع --</option>
+                            <option value="text">نص</option>
+                            <option value="table">جدول</option>
+                        </select>
+                        
+                        <div class="payment-text-container">
+                            <input type="text" placeholder="أدخل تفاصيل وشروط الدفع هنا...">
+                        </div>
+                        
+                        <div class="payment-table-container">
+                            <table class="sub-table">
+                                <thead>
+                                    <tr>
+                                        <th>الدفعة</th>
+                                        <th>المبلغ</th>
+                                        <th>تاريخ الاستحقاق</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>الدفعة الأولى</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                    <tr><td>الدفعة الثانية</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                    <tr><td>الدفعة الثالثة</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                     <tr><td>الدفعة الرابعة</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>حالة الاتفاقية</th>
+                    <td><input type="text" placeholder="مثال: نشط، قيد الانتظار"></td>
+                </tr>
+                <tr>
+                    <th>الصرف</th>
+                    <td><input type="text" placeholder="تفاصيل الصرف"></td>
+                </tr>
+                <tr>
+                    <th>نوع الموازنة</th>
+                    <td>
+                        <select class="table-input">
+                            <option value="current">جاري</option>
+                            <option value="budget">موازنة</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <div class="contract-text-area"></div>
+        </div>
+    </div>
+
+    <!-- قسم الجدول الخاص باتفاقية مركز التعلم مدى الحياة -->
+    <div id="lifetime-table-section" class="agreement-section">
+        <div class="pdf-content">
+            <h2 style="text-align: center; margin-bottom: 20px;">تفاصيل اتفاقية مركز التعلم مدى الحياة</h2>
+            <table>
+                <tr>
+                    <th>رقم الاتفاقية</th>
+                    <td><input type="text" placeholder="أدخل رقم الاتفاقية"></td>
+                </tr>
+                <tr>
+                    <th>اسم الاتفاقية</th>
+                    <td><input type="text" placeholder="أدخل اسم الاتفاقية"></td>
+                </tr>
+                <tr>
+                    <th>اسم الشركة المتعاقد معها</th>
+                    <td><input type="text" placeholder="أدخل اسم الشركة"></td>
+                </tr>
+                <tr>
+                    <th>موضوع الاتفاقية</th>
+                    <td><input type="text" placeholder="أدخل موضوع الاتفاقية"></td>
+                </tr>
+                <tr>
+                    <th>بداية الاتفاقية</th>
+                    <td><input type="date"></td>
+                </tr>
+                <tr>
+                    <th>نهاية الاتفاقية</th>
+                    <td><input type="date"></td>
+                </tr>
+                <tr>
+                    <th>طريقة الدفع</th>
+                    <td>
+                        <select class="table-input payment-method" onchange="togglePaymentMethod(this)">
+                            <option value="">-- اختر طريقة الدفع --</option>
+                            <option value="text">نص</option>
+                            <option value="table">جدول</option>
+                        </select>
+                        
+                        <div class="payment-text-container">
+                            <input type="text" placeholder="أدخل تفاصيل وشروط الدفع هنا...">
+                        </div>
+                        
+                        <div class="payment-table-container">
+                            <table class="sub-table">
+                                <thead>
+                                    <tr>
+                                        <th>الدفعة</th>
+                                        <th>المبلغ</th>
+                                        <th>تاريخ الاستحقاق</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>الدفعة الأولى</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                    <tr><td>الدفعة الثانية</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                    <tr><td>الدفعة الثالثة</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                     <tr><td>الدفعة الرابعة</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                    <tr><td>الدفعة الخامسة</td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                    <tr><td>الدفعة السادسة </td><td><input type="number" placeholder="0.00"></td><td><input type="date"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>حالة الاتفاقية</th>
+                    <td><input type="text" placeholder="مثال: نشط، قيد الانتظار"></td>
+                </tr>
+                <tr>
+                    <th>الصرف</th>
+                    <td><input type="text" placeholder="تفاصيل الصرف"></td>
+                </tr>
+                <tr>
+                    <th>نوع الموازنة</th>
+                    <td>
+                        <select class="table-input">
+                            <option value="current">جاري</option>
+                            <option value="budget">موازنة</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <div class="contract-text-area"></div>
+        </div>
+    </div>
+
+    <!-- أدوات التحكم والعمليات السفلية المشتركة -->
+    <div id="controls-section" class="controls-container">
+        <div class="btn-group">
+            <button class="btn pdf-btn" onclick="generatePDF()">تحويل ملف العقد إلى PDF</button>
+           
+        </div>
+        <div>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hide-content-chk" onchange="toggleContentVisibility(this)">
+                إخفاء المحتوى
+            </label>
         </div>
     </div>
 
     <a href="index.html" class="back-link">العودة للصفحة الرئيسية</a>
 
     <script>
-        // دالة لإظهار الجدول عند اختيار "اتفاقية محتوى تعليمي"
+        let activeSectionId = '';
+
         function checkAgreementType() {
             var selectBox = document.getElementById("agreement-type");
-            var tableSection = document.getElementById("educational-table-section");
+            var eduSection = document.getElementById("educational-table-section");
+            var comSection = document.getElementById("commercial-table-section");
+            var lifeSection = document.getElementById("lifetime-table-section");
+            var controlsSection = document.getElementById("controls-section");
+            
+            // إخفاء الأقسام كافة
+            // تجريبية 
+            eduSection.style.display = "none";
+            comSection.style.display = "none";
+            lifeSection.style.display = "none";
+            controlsSection.style.display = "none";
+            activeSectionId = '';
             
             if (selectBox.value === "educational") {
-                tableSection.style.display = "block";
+                eduSection.style.display = "block";
+                controlsSection.style.display = "block";
+                activeSectionId = "educational-table-section";
+            } else if (selectBox.value === "commercial") {
+                comSection.style.display = "block";
+                controlsSection.style.display = "block";
+                activeSectionId = "commercial-table-section";
+            } else if (selectBox.value === "lifetime") {
+                lifeSection.style.display = "block";
+                controlsSection.style.display = "block";
+                activeSectionId = "lifetime-table-section";
+            }
+            // إعادة ضبط الـ Checkbox عند تغيير نوع العقد
+            document.getElementById("hide-content-chk").checked = false;
+            toggleContentVisibility(document.getElementById("hide-content-chk"));
+        }
+
+        function togglePaymentMethod(selectElement) {
+            var method = selectElement.value;
+            var cell = selectElement.parentElement;
+            var textContainer = cell.querySelector(".payment-text-container");
+            var tableContainer = cell.querySelector(".payment-table-container");
+            
+            if (method === "text") {
+                textContainer.style.display = "block";
+                tableContainer.style.display = "none";
+            } else if (method === "table") {
+                textContainer.style.display = "none";
+                tableContainer.style.display = "block";
             } else {
-                tableSection.style.display = "none";
+                textContainer.style.display = "none";
+                tableContainer.style.display = "none";
             }
         }
 
-        // دالة تحويل الجدول والبيانات المدخلة إلى PDF وتحميله فوراً
-        function generatePDF() {
-            const element = document.getElementById('pdf-content');
+        function handleFileUpload(inputElement) {
+            const file = inputElement.files[0];
+            if (!file || !activeSectionId) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const activeSection = document.getElementById(activeSectionId);
+                const textArea = activeSection.querySelector(".contract-text-area");
+                textArea.innerHTML = `<h3>نص العقد الإضافي المرفق:</h3><p style="white-space: pre-wrap; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius:4px;">${text}</p>`;
+            };
+            reader.readAsText(file);
+        }
+
+        function toggleContentVisibility(checkboxElement) {
+            if (!activeSectionId) return;
+            const activeSection = document.getElementById(activeSectionId);
             
-            // إعدادات خيارات الـ PDF ليدعم اللغة العربية والتنسيق اليميني
+            if (checkboxElement.checked) {
+                activeSection.classList.add("hide-empty");
+                
+                // إخفاء حاويات الدفع غير المختارة
+                const methodSelect = activeSection.querySelector(".payment-method");
+                const textCont = activeSection.querySelector(".payment-text-container");
+                const tableCont = activeSection.querySelector(".payment-table-container");
+                
+                if (methodSelect && methodSelect.value !== "text") textCont.classList.add("hidden-element");
+                if (methodSelect && methodSelect.value !== "table") tableCont.classList.add("hidden-element");
+            } else {
+                activeSection.classList.remove("hide-empty");
+                const hiddenElements = activeSection.querySelectorAll(".hidden-element");
+                hiddenElements.forEach(el => el.classList.remove("hidden-element"));
+            }
+        }
+
+        function printContract() {
+            if (!activeSectionId) {
+                alert("الرجاء اختيار نوع الاتفاقية أولاً");
+                return;
+            }
+            window.print();
+        }
+
+        function generatePDF() {
+            if (!activeSectionId) {
+                alert("الرجاء اختيار نوع الاتفاقية أولاً");
+                return;
+            }
+            
+            const activeSection = document.getElementById(activeSectionId);
+            const element = activeSection.querySelector('.pdf-content');
+            
+            let fileName = 'اتفاقية.pdf';
+            if (activeSectionId === 'educational-table-section') fileName = 'اتفاقية_محتوى_تعليمي.pdf';
+            else if (activeSectionId === 'commercial-table-section') fileName = 'اتفاقية_مركز_نفاذ.pdf';
+            else if (activeSectionId === 'lifetime-table-section') fileName = 'اتفاقية_مركز_التعلم_مدى_الحياة.pdf';
+            
             const opt = {
-                margin:       10,
-                filename:     'اتفاقية_محتوى_تعليمي.pdf',
+                margin:       15,
+                filename:     fileName,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-
-            // تشغيل التحميل
+            
             html2pdf().set(opt).from(element).save();
         }
     </script>
-
 </body>
 </html>
