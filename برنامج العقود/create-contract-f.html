@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المناقصات</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            background: #f0f4f8;
+            padding: 30px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .card-title .badge {
+            font-size: 14px;
+            font-weight: 400;
+            color: #64748b;
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-group label .required {
+            color: #ef4444;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: 0.3s;
+            background: #fafbfc;
+            width: 100%;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input[type="date"] {
+            min-height: 44px;
+        }
+
+        /* =========================
+           SUB TABLE - فض العروض (الجدول الرئيسي)
+        ========================= */
+        .sub-table-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .sub-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .sub-table th {
+            background: #f1f5f9;
+            padding: 10px 12px;
+            text-align: right;
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .sub-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .sub-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .sub-table input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: #fafbfc;
+        }
+
+        .sub-table input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* =========================
+           سطور السكر (حقول إضافية منفصلة)
+        ========================= */
+        .sugar-rows-container {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sugar-row-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fefce8;
+            border: 1.5px solid #f59e0b;
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: 0.3s;
+        }
+
+        .sugar-row-item:hover {
+            background: #fffbeb;
+            border-color: #d97706;
+        }
+
+        .sugar-row-item .sugar-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: #92400e;
+            background: #fef3c7;
+            padding: 4px 12px;
+            border-radius: 6px;
+            min-width: 70px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .sugar-row-item textarea {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1.5px solid #f59e0b;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: #fffbeb;
+            min-height: 50px;
+            resize: vertical;
+            transition: 0.3s;
+        }
+
+        .sugar-row-item textarea:focus {
+            outline: none;
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+            background: white;
+        }
+
+        .sugar-row-item .btn-remove-sugar {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+            min-width: 36px;
+        }
+
+        .sugar-row-item .btn-remove-sugar:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .sugar-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #92400e;
+            background: #fef3c7;
+            padding: 2px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* =========================
+           الأزرار
+        ========================= */
+        .btn-add-row {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .btn-add-row:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-add-sugar {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .btn-add-sugar:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-remove-row {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-remove-row:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* =========================
+           STATUS SECTION
+        ========================= */
+        .status-section {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            margin-top: 15px;
+        }
+
+        .status-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        .status-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        .status-option.selected-success {
+            border-color: #22c55e;
+            background: #dcfce7;
+        }
+
+        .status-option.selected-danger {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .status-option label {
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .status-success label {
+            color: #166534;
+        }
+
+        .status-danger label {
+            color: #991b1b;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #475569;
+            border: 1.5px solid #d1d5db;
+        }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .status-section {
+                flex-direction: column;
+            }
+
+            .sub-table {
+                font-size: 12px;
+            }
+
+            .sub-table th,
+            .sub-table td {
+                padding: 6px 8px;
+            }
+
+            .sub-table input {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .sugar-row-item {
+                flex-wrap: wrap;
+            }
+
+            .sugar-row-item .sugar-number {
+                width: 100%;
+            }
+
+            .sugar-row-item textarea {
+                width: 100%;
+            }
+        }
+
+        /* =========================
+           ALERT
+        ========================= */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        /* =========================
+           TENDER DISPLAY
+        ========================= */
+        .tender-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .tender-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .tender-status {
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .tender-status.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .tender-status.failed {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .tender-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .tender-bids {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .tender-bid-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .tender-bid-item.sugar {
+            background: #fefce8;
+            border-color: #f59e0b;
+            border-right: 4px solid #f59e0b;
+        }
+
+        .tender-bid-item .bid-label {
+            font-weight: 700;
+            color: #475569;
+            margin-left: 5px;
+        }
+
+        .tender-bid-item .sugar-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #92400e;
+            background: #fef3c7;
+            padding: 1px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- =========================
+         ALERT
+    ========================== -->
+    <div id="alertMessage" class="alert"></div>
+
+    <!-- =========================
+         FORM CARD
+    ========================== -->
+    <div class="card">
+        <div class="card-title">
+            📝 إضافة مناقصة جديدة
+            <span class="badge">جميع الحقول مطلوبة ما لم يُذكر خلاف ذلك</span>
+        </div>
+
+        <form id="tenderForm" onsubmit="handleSubmit(event)">
+            <div class="form-grid">
+
+                <!-- مذكرة تبريرية -->
+                <div class="form-group full-width">
+                    <label>مذكرة تبريرية <span class="required">*</span></label>
+                    <textarea id="justificationMemo" placeholder="أدخل المذكرة التبريرية للمناقصة" required></textarea>
+                </div>
+
+                <!-- دفتر شروط فني -->
+                <div class="form-group">
+                    <label>دفتر شروط فني <span class="required">*</span></label>
+                    <input type="text" id="technicalSpecs" placeholder="أدخل دفتر الشروط الفني" required>
+                </div>
+
+                <!-- دفتر شروط حقوقي -->
+                <div class="form-group">
+                    <label>دفتر شروط حقوقي <span class="required">*</span></label>
+                    <input type="text" id="legalSpecs" placeholder="أدخل دفتر الشروط الحقوقي" required>
+                </div>
+
+                <!-- تاريخ الإعلان بداية -->
+                <div class="form-group">
+                    <label>تاريخ الإعلان (بداية) <span class="required">*</span></label>
+                    <input type="date" id="announceStart" required>
+                </div>
+
+                <!-- تاريخ الإعلان نهاية -->
+                <div class="form-group">
+                    <label>تاريخ الإعلان (نهاية) <span class="required">*</span></label>
+                    <input type="date" id="announceEnd" required>
+                </div>
+
+            </div>
+
+            <!-- =========================
+                 SUB TABLE: فض العروض
+            ========================== -->
+            <div style="margin-top: 20px;">
+                <label style="font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 8px;">
+                    📋 فض العروض (محاضر)
+                </label>
+
+                <div class="sub-table-container">
+                    <table class="sub-table" id="bidsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">رقم المحضر</th>
+                                <th style="width: 35%;">التاريخ</th>
+                                <th style="width: 30%;">الموضوع</th>
+                                <th style="width: 5%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="bidsBody">
+                            <!-- سيتم إضافة الصفوف هنا ديناميكياً -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="button" class="btn-add-row" onclick="addBidRow()">
+                    ➕ إضافة سطر (رقم المحضر، التاريخ، الموضوع)
+                </button>
+            </div>
+
+            <!-- =========================
+                 SUGAR ROWS - سطور السكر المنفصلة
+            ========================== -->
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px dashed #e2e8f0;">
+                <label style="font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 8px;">
+                    📝 سطر الرغبات
+                </label>
+
+                <div id="sugarRowsContainer" class="sugar-rows-container">
+                    <!-- سيتم إضافة سطور السكر هنا ديناميكياً -->
+                </div>
+
+                <button type="button" class="btn-add-sugar" onclick="addSugarRow()">
+                    ➕ إضافة رغبه جديده
+                </button>
+            </div>
+
+            <!-- =========================
+                 STATUS SELECTION
+            ========================== -->
+            <div class="status-section">
+                <div class="status-option status-success" id="statusSuccess">
+                    <input type="radio" name="tenderStatus" value="success" id="statusSuccessRadio">
+                    <label for="statusSuccessRadio">✅ تمت المناقصة بنجاح</label>
+                </div>
+                <div class="status-option status-danger" id="statusFailed">
+                    <input type="radio" name="tenderStatus" value="failed" id="statusFailedRadio">
+                    <label for="statusFailedRadio">❌ فشلت المناقصة</label>
+                </div>
+            </div>
+
+            <!-- =========================
+                 FORM ACTIONS
+            ========================== -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">
+                    ✅ حفظ المناقصة
+                </button>
+                <button type="reset" class="btn btn-outline" onclick="resetForm()">
+                    🗑️ إعادة تعيين
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- =========================
+         DISPLAY CARD (للعرض)
+    ========================== -->
+    <div class="card" id="displayCard">
+        <div class="card-title">
+            📋 المناقصات المسجلة
+            <span class="badge" id="tenderCount">0 مناقصة</span>
+        </div>
+        <div id="tendersList">
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <p>لا توجد مناقصات مسجلة حتى الآن</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ==========================================
+    // DATA
+    // ==========================================
+    let tenders = [];
+    let bidRowCounter = 0;
+    let sugarRowCounter = 0;
+
+    // ==========================================
+    // ADD BID ROW - إضافة سطر في جدول فض العروض
+    // ==========================================
+    function addBidRow(data = null) {
+        const tbody = document.getElementById('bidsBody');
+        const rowId = ++bidRowCounter;
+
+        const row = document.createElement('tr');
+        row.id = `bid-row-${rowId}`;
+        
+        row.innerHTML = `
+            <td>
+                <input type="text" class="bid-number" placeholder="رقم المحضر" 
+                       value="${data && data.number ? data.number : ''}">
+            </td>
+            <td>
+                <input type="date" class="bid-date" 
+                       value="${data && data.date ? data.date : ''}">
+            </td>
+            <td>
+                <input type="text" class="bid-subject" placeholder="الموضوع"
+                       value="${data && data.subject ? data.subject : ''}">
+            </td>
+            <td>
+                <button type="button" class="btn-remove-row" onclick="removeBidRow(${rowId})">
+                    ✕
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+        showAlert('تم إضافة سطر جديد في فض العروض ✅', 'success');
+    }
+
+    // ==========================================
+    // REMOVE BID ROW - حذف سطر من جدول فض العروض
+    // ==========================================
+    function removeBidRow(rowId) {
+        const row = document.getElementById(`bid-row-${rowId}`);
+        if (row) {
+            const tbody = document.getElementById('bidsBody');
+            if (tbody.children.length > 1) {
+                row.remove();
+                showAlert('تم حذف السطر', 'warning');
+            } else {
+                showAlert('لا يمكن حذف الصف الأخير. قم بإضافة صف جديد أولاً.', 'danger');
+            }
+        }
+    }
+
+    // ==========================================
+    // CLEAR BIDS TABLE - مسح جدول فض العروض بالكامل
+    // ==========================================
+    function clearBidsTable() {
+        const tbody = document.getElementById('bidsBody');
+        tbody.innerHTML = '';
+        bidRowCounter = 0;
+        // إضافة صف واحد فارغ
+        addBidRow();
+    }
+
+    // ==========================================
+    // CLEAR FAILED FIELDS - مسح حقول الفشل
+    // ==========================================
+    function clearFailedFields() {
+        // مسح تاريخ الإعلان بداية
+        document.getElementById('announceStart').value = '';
+        
+        // مسح تاريخ الإعلان نهاية
+        document.getElementById('announceEnd').value = '';
+        
+        // مسح جدول فض العروض بالكامل
+        clearBidsTable();
+        
+        // مسح سطور الرغبات
+        document.getElementById('sugarRowsContainer').innerHTML = '';
+        sugarRowCounter = 0;
+        
+        showAlert('❌ تم مسح تواريخ الإعلان وجدول فض العروض', 'warning');
+    }
+
+    // ==========================================
+    // ADD SUGAR ROW - إضافة سطر سكر جديد (منفصل)
+    // ==========================================
+    function addSugarRow(value = '') {
+        const container = document.getElementById('sugarRowsContainer');
+        const rowId = ++sugarRowCounter;
+
+        const div = document.createElement('div');
+        div.className = 'sugar-row-item';
+        div.id = `sugar-row-${rowId}`;
+        div.innerHTML = `
+            <span class="sugar-number">📝 سطر ${rowId}</span>
+            <textarea placeholder="أدخل الرغبات..." rows="2">${value}</textarea>
+            <button type="button" class="btn-remove-sugar" onclick="removeSugarRow(${rowId})">
+                ✕
+            </button>
+        `;
+
+        container.appendChild(div);
+        
+        const textarea = div.querySelector('textarea');
+        if (textarea) {
+            textarea.focus();
+        }
+
+        showAlert('تم إضافة رغبه جديد ✅', 'success');
+    }
+
+    // ==========================================
+    // REMOVE SUGAR ROW - حذف سطر سكر
+    // ==========================================
+    function removeSugarRow(rowId) {
+        const row = document.getElementById(`sugar-row-${rowId}`);
+        if (row) {
+            const container = document.getElementById('sugarRowsContainer');
+            if (container.children.length > 0) {
+                row.remove();
+                renumberSugarRows();
+                showAlert('تم حذف سطر السكر', 'warning');
+            }
+        }
+    }
+
+    // ==========================================
+    // RENUMBER SUGAR ROWS - إعادة ترقيم سطور السكر
+    // ==========================================
+    function renumberSugarRows() {
+        const rows = document.querySelectorAll('.sugar-row-item');
+        rows.forEach((row, index) => {
+            const label = row.querySelector('.sugar-number');
+            if (label) {
+                label.textContent = `📝 سطر ${index + 1}`;
+            }
+            const oldId = row.id;
+            const newId = `sugar-row-${index + 1}`;
+            row.id = newId;
+            
+            const removeBtn = row.querySelector('.btn-remove-sugar');
+            if (removeBtn) {
+                removeBtn.setAttribute('onclick', `removeSugarRow(${index + 1})`);
+            }
+        });
+        sugarRowCounter = rows.length;
+    }
+
+    // ==========================================
+    // GET BIDS DATA - جلب بيانات فض العروض
+    // ==========================================
+    function getBidsData() {
+        const rows = document.querySelectorAll('#bidsBody tr');
+        const bids = [];
+        rows.forEach(row => {
+            const number = row.querySelector('.bid-number')?.value || '';
+            const date = row.querySelector('.bid-date')?.value || '';
+            const subject = row.querySelector('.bid-subject')?.value || '';
+            if (number || date || subject) {
+                bids.push({ number, date, subject });
+            }
+        });
+        return bids;
+    }
+
+    // ==========================================
+    // GET SUGAR DATA - جلب بيانات سطور السكر
+    // ==========================================
+    function getSugarData() {
+        const rows = document.querySelectorAll('.sugar-row-item textarea');
+        const sugars = [];
+        rows.forEach(textarea => {
+            const value = textarea.value.trim();
+            if (value) {
+                sugars.push(value);
+            }
+        });
+        return sugars;
+    }
+
+    // ==========================================
+    // SHOW ALERT - عرض رسالة
+    // ==========================================
+    function showAlert(message, type = 'success') {
+        const alertEl = document.getElementById('alertMessage');
+        alertEl.textContent = message;
+        alertEl.className = `alert alert-${type} show`;
+        
+        setTimeout(() => {
+            alertEl.classList.remove('show');
+        }, 5000);
+    }
+
+    // ==========================================
+    // RESET FORM - إعادة تعيين النموذج
+    // ==========================================
+    function resetForm() {
+        document.getElementById('tenderForm').reset();
+        document.getElementById('bidsBody').innerHTML = '';
+        document.getElementById('sugarRowsContainer').innerHTML = '';
+        bidRowCounter = 0;
+        sugarRowCounter = 0;
+        
+        addBidRow();
+        
+        document.querySelectorAll('input[name="tenderStatus"]').forEach(el => el.checked = false);
+        document.querySelectorAll('.status-option').forEach(el => {
+            el.classList.remove('selected-success', 'selected-danger');
+        });
+        
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('announceStart').value = today;
+        
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        document.getElementById('announceEnd').value = nextWeek.toISOString().split('T')[0];
+    }
+
+    // ==========================================
+    // HANDLE STATUS SELECTION - اختيار الحالة
+    // ==========================================
+    document.querySelectorAll('input[name="tenderStatus"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.status-option').forEach(el => {
+                el.classList.remove('selected-success', 'selected-danger');
+            });
+            
+            if (this.value === 'success') {
+                document.getElementById('statusSuccess').classList.add('selected-success');
+                showAlert('✅ تم اختيار: تمت المناقصة بنجاح', 'success');
+            } else if (this.value === 'failed') {
+                document.getElementById('statusFailed').classList.add('selected-danger');
+                // مسح الحقول عند اختيار فشلت
+                clearFailedFields();
+            }
+        });
+    });
+
+    // ==========================================
+    // HANDLE FORM SUBMIT - معالجة إرسال النموذج
+    // ==========================================
+    function handleSubmit(event) {
+        event.preventDefault();
+
+        const justificationMemo = document.getElementById('justificationMemo').value.trim();
+        const technicalSpecs = document.getElementById('technicalSpecs').value.trim();
+        const legalSpecs = document.getElementById('legalSpecs').value.trim();
+        const announceStart = document.getElementById('announceStart').value;
+        const announceEnd = document.getElementById('announceEnd').value;
+        const status = document.querySelector('input[name="tenderStatus"]:checked')?.value;
+
+        if (!justificationMemo || !technicalSpecs || !legalSpecs || !announceStart || !announceEnd) {
+            showAlert('يرجى ملء جميع الحقول المطلوبة', 'danger');
+            return;
+        }
+
+        if (!status) {
+            showAlert('يرجى تحديد حالة المناقصة (تمت أو فشلت)', 'danger');
+            return;
+        }
+
+        if (new Date(announceStart) > new Date(announceEnd)) {
+            showAlert('تاريخ بداية الإعلان لا يمكن أن يكون بعد تاريخ نهاية الإعلان', 'danger');
+            return;
+        }
+
+        const bids = getBidsData();
+        const sugars = getSugarData();
+
+        const tender = {
+            id: Date.now(),
+            justificationMemo,
+            technicalSpecs,
+            legalSpecs,
+            announceStart,
+            announceEnd,
+            bids,
+            sugars,
+            status,
+            createdAt: new Date().toLocaleString('ar-SA')
+        };
+
+        if (status === 'failed') {
+            tender.announceStart = '';
+            tender.announceEnd = '';
+            tender.bids = [];
+            tender.sugars = [];
+            
+            showAlert('تم تسجيل المناقصة كفاشلة. تم حذف تواريخ الإعلان وفض العروض والسكر.', 'warning');
+        } else {
+            showAlert('تم تسجيل المناقصة بنجاح ✅', 'success');
+        }
+
+        tenders.push(tender);
+        resetForm();
+        renderTenders();
+    }
+
+    // ==========================================
+    // DELETE TENDER - حذف مناقصة
+    // ==========================================
+    function deleteTender(id) {
+        if (confirm('هل أنت متأكد من حذف هذه المناقصة؟')) {
+            tenders = tenders.filter(t => t.id !== id);
+            renderTenders();
+            showAlert('تم حذف المناقصة', 'warning');
+        }
+    }
+
+    // ==========================================
+    // RENDER TENDERS - عرض المناقصات
+    // ==========================================
+    function renderTenders() {
+        const container = document.getElementById('tendersList');
+        const countEl = document.getElementById('tenderCount');
+
+        if (tenders.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <p>لا توجد مناقصات مسجلة حتى الآن</p>
+                </div>
+            `;
+            countEl.textContent = '0 مناقصة';
+            return;
+        }
+
+        let html = '';
+        tenders.forEach((tender, index) => {
+            const statusText = tender.status === 'success' ? '✅ تمت بنجاح' : '❌ فشلت';
+            const statusClass = tender.status === 'success' ? 'success' : 'failed';
+
+            const formatDate = (date) => {
+                if (!date) return '-';
+                const d = new Date(date);
+                return d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+            };
+
+            const bidsHtml = tender.bids && tender.bids.length > 0 ? 
+                tender.bids.map((bid, i) => `
+                    <div class="tender-bid-item">
+                        <span class="bid-label">المحضر ${i + 1}:</span>
+                        ${bid.number ? `رقم: ${bid.number} | ` : ''}
+                        ${bid.date ? `تاريخ: ${formatDate(bid.date)} | ` : ''}
+                        ${bid.subject ? `موضوع: ${bid.subject}` : ''}
+                    </div>
+                `).join('') 
+            : '<p style="color: #94a3b8; font-size: 13px;">لا توجد محاضر مسجلة</p>';
+
+            const sugarsHtml = tender.sugars && tender.sugars.length > 0 ?
+                tender.sugars.map((sugar, i) => `
+                    <div class="tender-bid-item sugar">
+                        <span class="sugar-label">📝 سكر ${i + 1}:</span>
+                        ${sugar}
+                    </div>
+                `).join('')
+                : '<p style="color: #94a3b8; font-size: 13px;">لا توجد ملاحظات (سكر)</p>';
+
+            html += `
+                <div class="tender-item">
+                    <div class="tender-header">
+                        <div>
+                            <strong style="font-size: 16px;">مناقصة #${index + 1}</strong>
+                            <span style="font-size: 13px; color: #64748b; margin-right: 10px;">${tender.createdAt}</span>
+                        </div>
+                        <div>
+                            <span class="tender-status ${statusClass}">${statusText}</span>
+                            <button class="btn btn-danger" onclick="deleteTender(${tender.id})" 
+                                    style="padding: 4px 12px; font-size: 12px; margin-right: 8px;">
+                                🗑️ حذف
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tender-details">
+                        <div><strong>المذكرة التبريرية:</strong> ${tender.justificationMemo}</div>
+                        <div><strong>دفتر شروط فني:</strong> ${tender.technicalSpecs}</div>
+                        <div><strong>دفتر شروط حقوقي:</strong> ${tender.legalSpecs}</div>
+                        <div><strong>تاريخ الإعلان:</strong> ${formatDate(tender.announceStart)} - ${formatDate(tender.announceEnd)}</div>
+                    </div>
+
+                    <div class="tender-bids">
+                        <strong style="font-size: 14px;">📋 فض العروض:</strong>
+                        <div style="margin-top: 8px;">
+                            ${bidsHtml}
+                        </div>
+                    </div>
+
+                    <div class="tender-bids">
+                        <strong style="font-size: 14px;">📝 سكر (ملاحظات):</strong>
+                        <div style="margin-top: 8px;">
+                            ${sugarsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        countEl.textContent = `${tenders.length} مناقصة`;
+    }
+
+    // ==========================================
+    // INITIALIZE - تهيئة الصفحة
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        addBidRow();
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('announceStart').value = today;
+        
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        document.getElementById('announceEnd').value = nextWeek.toISOString().split('T')[0];
+    });
+</script>
+
+</body>
+
+</html>
