@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المناقصات</title>
+    <title>إدارة العقود</title>
 
     <style>
         * {
@@ -21,7 +21,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -106,30 +106,90 @@
 
         .form-group textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 60px;
         }
 
         .form-group input[type="date"] {
             min-height: 44px;
         }
 
+        .form-group input[type="number"] {
+            min-height: 44px;
+        }
+
         /* =========================
-           SUB TABLE - فض العروض (الجدول الرئيسي)
+           طريقة الدفع - اختيار
         ========================= */
-        .sub-table-container {
+        .payment-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fafbfc;
+        }
+
+        .payment-option:hover {
+            border-color: #94a3b8;
+            background: #f1f5f9;
+        }
+
+        .payment-option.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .payment-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2563eb;
+            margin: 0;
+        }
+
+        .payment-option label {
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .payment-option.selected label {
+            color: #1e40af;
+        }
+
+        /* =========================
+           جدول الدفع المخصص
+        ========================= */
+        .payment-table-container {
+            margin-top: 15px;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             overflow: hidden;
-            margin-top: 10px;
+            display: none;
         }
 
-        .sub-table {
+        .payment-table-container.active {
+            display: block;
+        }
+
+        .payment-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
         }
 
-        .sub-table th {
+        .payment-table th {
             background: #f1f5f9;
             padding: 10px 12px;
             text-align: right;
@@ -138,17 +198,17 @@
             border-bottom: 2px solid #e2e8f0;
         }
 
-        .sub-table td {
+        .payment-table td {
             padding: 8px 12px;
             border-bottom: 1px solid #e2e8f0;
             vertical-align: middle;
         }
 
-        .sub-table tr:last-child td {
+        .payment-table tr:last-child td {
             border-bottom: none;
         }
 
-        .sub-table input {
+        .payment-table input {
             width: 100%;
             padding: 8px 10px;
             border: 1px solid #d1d5db;
@@ -158,152 +218,40 @@
             background: #fafbfc;
         }
 
-        .sub-table input:focus {
+        .payment-table input:focus {
             outline: none;
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        /* =========================
-           سطور السكر (حقول إضافية منفصلة)
-        ========================= */
-        .sugar-rows-container {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .sugar-row-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #fefce8;
-            border: 1.5px solid #f59e0b;
-            border-radius: 8px;
-            padding: 10px 15px;
-            transition: 0.3s;
-        }
-
-        .sugar-row-item:hover {
-            background: #fffbeb;
-            border-color: #d97706;
-        }
-
-        .sugar-row-item .sugar-number {
-            font-size: 13px;
-            font-weight: 700;
-            color: #92400e;
-            background: #fef3c7;
-            padding: 4px 12px;
-            border-radius: 6px;
-            min-width: 70px;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        .sugar-row-item textarea {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1.5px solid #f59e0b;
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: inherit;
-            background: #fffbeb;
-            min-height: 50px;
-            resize: vertical;
-            transition: 0.3s;
-        }
-
-        .sugar-row-item textarea:focus {
-            outline: none;
-            border-color: #d97706;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
-            background: white;
-        }
-
-        .sugar-row-item .btn-remove-sugar {
-            background: #ef4444;
+        .btn-add-payment-row {
+            background: #2563eb;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 18px;
             border-radius: 6px;
             font-size: 14px;
             cursor: pointer;
             transition: 0.3s;
-            font-weight: 600;
-            min-width: 36px;
-        }
-
-        .sugar-row-item .btn-remove-sugar:hover {
-            background: #dc2626;
-            transform: scale(1.1);
-        }
-
-        .sugar-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #92400e;
-            background: #fef3c7;
-            padding: 2px 10px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-
-        /* =========================
-           الأزرار
-        ========================= */
-        .btn-add-row {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.3s;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-family: inherit;
-            margin-top: 15px;
+            margin-top: 10px;
             font-weight: 600;
         }
 
-        .btn-add-row:hover {
+        .btn-add-payment-row:hover {
             background: #1d4ed8;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
-        .btn-add-sugar {
-            background: #f59e0b;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-family: inherit;
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
-        .btn-add-sugar:hover {
-            background: #d97706;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        }
-
-        .btn-remove-row {
+        .btn-remove-payment-row {
             background: #ef4444;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 6px;
             font-size: 14px;
             cursor: pointer;
@@ -311,65 +259,9 @@
             font-weight: 600;
         }
 
-        .btn-remove-row:hover {
+        .btn-remove-payment-row:hover {
             background: #dc2626;
             transform: scale(1.1);
-        }
-
-        /* =========================
-           STATUS SECTION
-        ========================= */
-        .status-section {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            margin-top: 15px;
-        }
-
-        .status-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 2px solid transparent;
-            transition: 0.3s;
-        }
-
-        .status-option input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #2563eb;
-        }
-
-        .status-option.selected-success {
-            border-color: #22c55e;
-            background: #dcfce7;
-        }
-
-        .status-option.selected-danger {
-            border-color: #ef4444;
-            background: #fef2f2;
-        }
-
-        .status-option label {
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .status-success label {
-            color: #166534;
-        }
-
-        .status-danger label {
-            color: #991b1b;
         }
 
         /* =========================
@@ -431,6 +323,138 @@
         }
 
         /* =========================
+           STATUS BADGES
+        ========================= */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-current {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-future {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .type-current {
+            background: #ecfdf3;
+            color: #027a48;
+        }
+
+        .type-investment {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1600px;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: #f1f5f9;
+        }
+
+        th {
+            padding: 12px 10px;
+            text-align: right;
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        /* =========================
+           STATS
+        ========================= */
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-right: 4px solid #2563eb;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .stat-item .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .stat-item .label {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* =========================
            RESPONSIVE
         ========================= */
         @media (max-width: 768px) {
@@ -451,33 +475,19 @@
                 flex-direction: column;
             }
 
-            .status-section {
+            .stats {
                 flex-direction: column;
             }
 
-            .sub-table {
-                font-size: 12px;
+            .stat-item {
+                min-width: unset;
             }
 
-            .sub-table th,
-            .sub-table td {
-                padding: 6px 8px;
+            .payment-options {
+                flex-direction: column;
             }
 
-            .sub-table input {
-                font-size: 12px;
-                padding: 6px 8px;
-            }
-
-            .sugar-row-item {
-                flex-wrap: wrap;
-            }
-
-            .sugar-row-item .sugar-number {
-                width: 100%;
-            }
-
-            .sugar-row-item textarea {
+            .payment-option {
                 width: 100%;
             }
         }
@@ -514,98 +524,6 @@
         .alert.show {
             display: block;
         }
-
-        /* =========================
-           TENDER DISPLAY
-        ========================= */
-        .tender-item {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
-
-        .tender-header {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .tender-status {
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .tender-status.success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .tender-status.failed {
-            background: #fef2f2;
-            color: #991b1b;
-        }
-
-        .tender-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-
-        .tender-bids {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .tender-bid-item {
-            background: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 5px;
-            font-size: 13px;
-        }
-
-        .tender-bid-item.sugar {
-            background: #fefce8;
-            border-color: #f59e0b;
-            border-right: 4px solid #f59e0b;
-        }
-
-        .tender-bid-item .bid-label {
-            font-weight: 700;
-            color: #475569;
-            margin-left: 5px;
-        }
-
-        .tender-bid-item .sugar-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #92400e;
-            background: #fef3c7;
-            padding: 1px 8px;
-            border-radius: 4px;
-            margin-right: 5px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 30px;
-            color: #94a3b8;
-        }
-
-        .empty-state .icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 
@@ -623,41 +541,60 @@
     ========================== -->
     <div class="card">
         <div class="card-title">
-            📝 إضافة مناقصة جديدة
+            📝 إضافة عقد جديد
             <span class="badge">جميع الحقول مطلوبة ما لم يُذكر خلاف ذلك</span>
         </div>
 
-        <form id="tenderForm" onsubmit="handleSubmit(event)">
+        <form id="contractForm" onsubmit="handleSubmit(event)">
             <div class="form-grid">
 
-                <!-- مذكرة تبريرية -->
+                <!-- رقم العقد -->
+                <div class="form-group">
+                    <label>رقم العقد <span class="required">*</span></label>
+                    <input type="number" id="contractNumber" placeholder="أدخل رقم العقد" required>
+                </div>
+
+                <!-- اسم العقد -->
+                <div class="form-group">
+                    <label>اسم الشركه <span class="required">*</span></label>
+                    <input type="text" id="contractName" placeholder="أدخل اسم الشركه" required>
+                </div>
+
+                <!-- تاريخ البداية -->
+                <div class="form-group">
+                    <label>تاريخ البداية <span class="required">*</span></label>
+                    <input type="date" id="startDate" required>
+                </div>
+
+                <!-- تاريخ النهاية -->
+                <div class="form-group">
+                    <label>تاريخ النهاية <span class="required">*</span></label>
+                    <input type="date" id="endDate" required>
+                </div>
+
+                <!-- أمر المباشرة -->
+                <div class="form-group">
+                    <label>أمر المباشرة</label>
+                    <input type="date" id="directOrder">
+                </div>
+
+                <!-- تاريخ الانتهاء الفعلي -->
+                <div class="form-group">
+                    <label>تاريخ الانتهاء الفعلي</label>
+                    <input type="date" id="actualEndDate">
+                </div>
+
+                <!-- موضوع العقد -->
+<!--
                 <div class="form-group full-width">
-                    <label>مذكرة تبريرية <span class="required">*</span></label>
-                    <textarea id="justificationMemo" placeholder="أدخل المذكرة التبريرية للمناقصة" required></textarea>
+                    <label>موضوع العقد <span class="required">*</span></label>
+                    <input type="text" id="subject" placeholder="أدخل موضوع العقد" required>
                 </div>
-
-                <!-- دفتر شروط فني -->
+-->
+                <!-- قيمة العقد -->
                 <div class="form-group">
-                    <label>دفتر شروط فني <span class="required">*</span></label>
-                    <input type="text" id="technicalSpecs" placeholder="أدخل دفتر الشروط الفني" required>
-                </div>
-
-                <!-- دفتر شروط حقوقي -->
-                <div class="form-group">
-                    <label>دفتر شروط حقوقي <span class="required">*</span></label>
-                    <input type="text" id="legalSpecs" placeholder="أدخل دفتر الشروط الحقوقي" required>
-                </div>
-
-                <!-- تاريخ الإعلان بداية -->
-                <div class="form-group">
-                    <label>تاريخ الإعلان (بداية) <span class="required">*</span></label>
-                    <input type="date" id="announceStart" required>
-                </div>
-
-                <!-- تاريخ الإعلان نهاية -->
-                <div class="form-group">
-                    <label>تاريخ الإعلان (نهاية) <span class="required">*</span></label>
-                    <input type="date" id="announceEnd" required>
+                    <label>قيمة العقد <span class="required">*</span></label>
+                    <input type="number" id="contractValue" placeholder="0.00" step="0.01" required>
                 </div>
 
                 <!-- تاريخ التذكير -->
@@ -666,74 +603,79 @@
                     <input type="date" id="remindeDate" required>
                 </div>
 
-            </div>
+                <!-- طريقة الدفع -->
+                <div class="form-group full-width">
+                    <label>طريقة الدفع <span class="required">*</span></label>
+                    
+                    <div class="payment-options">
+                        <div class="payment-option selected" id="paymentNumberOption" onclick="selectPaymentMethod('number')">
+                            <input type="radio" name="paymentMethod" value="number" checked>
+                            <label>🔢 رقم</label>
+                        </div>
+                        <div class="payment-option" id="paymentTableOption" onclick="selectPaymentMethod('table')">
+                            <input type="radio" name="paymentMethod" value="table">
+                            <label>📊 جدول</label>
+                        </div>
+                    </div>
 
-            <!-- =========================
-                 SUB TABLE: فض العروض
-            ========================== -->
-            <div style="margin-top: 20px;">
-                <label style="font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 8px;">
-                    📋 فض العروض (محاضر)
-                </label>
+                    <!-- حقل الرقم -->
+                    <div id="paymentNumberField" style="margin-top: 10px;">
+                        <input type="text" id="paymentNumber" placeholder="أدخل رقم الدفع أو التفاصيل">
+                    </div>
 
-                <div class="sub-table-container">
-                    <table class="sub-table" id="bidsTable">
-                        <thead>
-                            <tr>
-                                <th style="width: 30%;">رقم المحضر</th>
-                                <th style="width: 35%;">التاريخ</th>
-                                <th style="width: 30%;">الموضوع</th>
-                                <th style="width: 5%;"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="bidsBody">
-                            <!-- سيتم إضافة الصفوف هنا ديناميكياً -->
-                        </tbody>
-                    </table>
+                    <!-- جدول الدفع -->
+                    <div id="paymentTableContainer" class="payment-table-container">
+                        <table class="payment-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%;">مرحله</th>
+                                    <th style="width: 35%;">قيمه المرحله</th>
+                                    <th style="width: 30%;">تفاصيل</th>
+                                    <th style="width: 5%;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentTableBody">
+                                <!-- سيتم إضافة الصفوف هنا ديناميكياً -->
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn-add-payment-row" onclick="addPaymentRow()">
+                            ➕ إضافة سطر
+                        </button>
+                    </div>
                 </div>
 
-                <button type="button" class="btn-add-row" onclick="addBidRow()">
-                    ➕ إضافة سطر (رقم المحضر، التاريخ، الموضوع)
-                </button>
-            </div>
-
-            <!-- =========================
-                 SUGAR ROWS - سطور السكر المنفصلة
-            ========================== -->
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px dashed #e2e8f0;">
-                <label style="font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 8px;">
-                    📝 سطر الرغبات
-                </label>
-
-                <div id="sugarRowsContainer" class="sugar-rows-container">
-                    <!-- سيتم إضافة سطور السكر هنا ديناميكياً -->
+                <!-- المهام -->
+                <div class="form-group full-width">
+                    <label>المهام</label>
+                    <textarea id="tasks" placeholder="أدخل المهام المطلوبة في هذا العقد" rows="3"></textarea>
                 </div>
 
-                <button type="button" class="btn-add-sugar" onclick="addSugarRow()">
-                    ➕ إضافة رغبه جديده
-                </button>
+                <!-- حالة العقد -->
+                <div class="form-group">
+                    <label>حالة العقد <span class="required">*</span></label>
+                    <select id="contractStatus" required>
+                        <option value="">-- اختر الحالة --</option>
+                        <option value="current">حالي</option>
+                        <option value="completed">مكتمل</option>
+                        <option value="future">مستقبلي</option>
+                    </select>
+                </div>
+
+                <!-- نوع العقد -->
+                <div class="form-group">
+                    <label>نوع العقد <span class="required">*</span></label>
+                    <select id="contractType" required>
+                        <option value="">-- اختر النوع --</option>
+                        <option value="current">جاري</option>
+                        <option value="investment">استثماري</option>
+                    </select>
+                </div>
+
             </div>
 
-            <!-- =========================
-                 STATUS SELECTION
-            ========================== -->
-            <div class="status-section">
-                <div class="status-option status-success" id="statusSuccess">
-                    <input type="radio" name="tenderStatus" value="success" id="statusSuccessRadio">
-                    <label for="statusSuccessRadio">✅ تمت المناقصة بنجاح</label>
-                </div>
-                <div class="status-option status-danger" id="statusFailed">
-                    <input type="radio" name="tenderStatus" value="failed" id="statusFailedRadio">
-                    <label for="statusFailedRadio">❌ فشلت المناقصة</label>
-                </div>
-            </div>
-
-            <!-- =========================
-                 FORM ACTIONS
-            ========================== -->
             <div class="form-actions">
                 <button type="submit" class="btn btn-success">
-                    ✅ حفظ المناقصة
+                    ✅ إضافة العقد
                 </button>
                 <button type="reset" class="btn btn-outline" onclick="resetForm()">
                     🗑️ إعادة تعيين
@@ -743,18 +685,65 @@
     </div>
 
     <!-- =========================
-         DISPLAY CARD (للعرض)
+         STATS
     ========================== -->
-    <div class="card" id="displayCard">
-        <div class="card-title">
-            📋 المناقصات المسجلة
-            <span class="badge" id="tenderCount">0 مناقصة</span>
+    <div class="stats" id="statsContainer">
+        <div class="stat-item">
+            <div class="number" id="totalCount">0</div>
+            <div class="label">إجمالي العقود</div>
         </div>
-        <div id="tendersList">
-            <div class="empty-state">
-                <div class="icon">📭</div>
-                <p>لا توجد مناقصات مسجلة حتى الآن</p>
-            </div>
+        <div class="stat-item" style="border-right-color: #3b82f6;">
+            <div class="number" id="currentCount">0</div>
+            <div class="label">حالية</div>
+        </div>
+        <div class="stat-item" style="border-right-color: #22c55e;">
+            <div class="number" id="completedCount">0</div>
+            <div class="label">مكتملة</div>
+        </div>
+        <div class="stat-item" style="border-right-color: #f59e0b;">
+            <div class="number" id="futureCount">0</div>
+            <div class="label">مستقبلية</div>
+        </div>
+    </div>
+
+    <!-- =========================
+         TABLE CARD
+    ========================== -->
+    <div class="card">
+        <div class="card-title" style="justify-content: space-between; flex-wrap: wrap;">
+            <span>📋 قائمة العقود</span>
+            <span style="font-size: 14px; font-weight: 400; color: #64748b;" id="recordCount">0 سجل</span>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>رقم العقد</th>
+                        <th>اسم العقد</th>
+                        <th>تاريخ البداية</th>
+                        <th>تاريخ النهاية</th>
+                        <th>أمر المباشرة</th>
+                        <th>تاريخ الانتهاء</th>
+                        <th>موضوع العقد</th>
+                        <th>قيمة العقد</th>
+                        <th>طريقة الدفع</th>
+                        <th>المهام</th>
+                        <th>الحالة</th>
+                        <th>نوع العقد</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="contractsBody">
+                    <tr>
+                        <td colspan="14" class="empty-state">
+                            <div class="icon">📭</div>
+                            <p>لا توجد عقود مسجلة. قم بإضافة عقد جديد من النموذج أعلاه.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -764,190 +753,108 @@
     // ==========================================
     // DATA
     // ==========================================
-    let tenders = [];
-    let bidRowCounter = 0;
-    let sugarRowCounter = 0;
+    let contracts = [];
+    let idCounter = 0;
+    let paymentRowCounter = 0;
+    let currentPaymentMethod = 'number';
 
     // ==========================================
-    // ADD BID ROW - إضافة سطر في جدول فض العروض
+    // SELECT PAYMENT METHOD
     // ==========================================
-    function addBidRow(data = null) {
-        const tbody = document.getElementById('bidsBody');
-        const rowId = ++bidRowCounter;
+    function selectPaymentMethod(method) {
+        currentPaymentMethod = method;
+        
+        // تحديث واجهة الاختيار
+        document.querySelectorAll('.payment-option').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        if (method === 'number') {
+            document.getElementById('paymentNumberOption').classList.add('selected');
+            document.getElementById('paymentNumberField').style.display = 'block';
+            document.getElementById('paymentTableContainer').classList.remove('active');
+        } else {
+            document.getElementById('paymentTableOption').classList.add('selected');
+            document.getElementById('paymentNumberField').style.display = 'none';
+            document.getElementById('paymentTableContainer').classList.add('active');
+            // إذا كان الجدول فارغاً، أضف صفاً افتراضياً
+            if (document.getElementById('paymentTableBody').children.length === 0) {
+                addPaymentRow();
+            }
+        }
+    }
+
+    // ==========================================
+    // ADD PAYMENT ROW
+    // ==========================================
+    function addPaymentRow(data = null) {
+        const tbody = document.getElementById('paymentTableBody');
+        const rowId = ++paymentRowCounter;
 
         const row = document.createElement('tr');
-        row.id = `bid-row-${rowId}`;
-        
+        row.id = `payment-row-${rowId}`;
         row.innerHTML = `
             <td>
-                <input type="text" class="bid-number" placeholder="رقم المحضر" 
-                       value="${data && data.number ? data.number : ''}">
+                <input type="text" class="payment-statement" placeholder="البيان" 
+                       value="${data && data.statement ? data.statement : ''}">
             </td>
             <td>
-                <input type="date" class="bid-date" 
-                       value="${data && data.date ? data.date : ''}">
+                <input type="number" class="payment-value" placeholder="القيمة" step="0.01"
+                       value="${data && data.value ? data.value : ''}">
             </td>
             <td>
-                <input type="text" class="bid-subject" placeholder="الموضوع"
-                       value="${data && data.subject ? data.subject : ''}">
+                <input type="text" class="payment-notes" placeholder="ملاحظات"
+                       value="${data && data.notes ? data.notes : ''}">
             </td>
             <td>
-                <button type="button" class="btn-remove-row" onclick="removeBidRow(${rowId})">
+                <button type="button" class="btn-remove-payment-row" onclick="removePaymentRow(${rowId})">
                     ✕
                 </button>
             </td>
         `;
 
         tbody.appendChild(row);
-       // showAlert('تم إضافة سطر جديد في فض العروض ✅', 'success');
     }
 
     // ==========================================
-    // REMOVE BID ROW - حذف سطر من جدول فض العروض
+    // REMOVE PAYMENT ROW
     // ==========================================
-    function removeBidRow(rowId) {
-        const row = document.getElementById(`bid-row-${rowId}`);
+    function removePaymentRow(rowId) {
+        const row = document.getElementById(`payment-row-${rowId}`);
         if (row) {
-            const tbody = document.getElementById('bidsBody');
+            const tbody = document.getElementById('paymentTableBody');
             if (tbody.children.length > 1) {
                 row.remove();
-                showAlert('تم حذف السطر', 'warning');
             } else {
-                showAlert('لا يمكن حذف الصف الأخير. قم بإضافة صف جديد أولاً.', 'danger');
+                showAlert('لا يمكن حذف الصف الأخير.', 'warning');
             }
         }
     }
 
     // ==========================================
-    // CLEAR BIDS TABLE - مسح جدول فض العروض بالكامل
+    // GET PAYMENT DATA
     // ==========================================
-    function clearBidsTable() {
-        const tbody = document.getElementById('bidsBody');
-        tbody.innerHTML = '';
-        bidRowCounter = 0;
-        // إضافة صف واحد فارغ
-        addBidRow();
-    }
-
-    // ==========================================
-    // CLEAR FAILED FIELDS - مسح حقول الفشل
-    // ==========================================
-    function clearFailedFields() {
-        // مسح تاريخ الإعلان بداية
-        document.getElementById('announceStart').value = '';
-        
-        // مسح تاريخ الإعلان نهاية
-        document.getElementById('announceEnd').value = '';
-        
-        // مسح جدول فض العروض بالكامل
-        clearBidsTable();
-        
-        // مسح سطور الرغبات
-        document.getElementById('sugarRowsContainer').innerHTML = '';
-        sugarRowCounter = 0;
-        
-        showAlert('❌ تم مسح تواريخ الإعلان وجدول فض العروض', 'warning');
-    }
-
-    // ==========================================
-    // ADD SUGAR ROW - إضافة سطر سكر جديد (منفصل)
-    // ==========================================
-    function addSugarRow(value = '') {
-        const container = document.getElementById('sugarRowsContainer');
-        const rowId = ++sugarRowCounter;
-
-        const div = document.createElement('div');
-        div.className = 'sugar-row-item';
-        div.id = `sugar-row-${rowId}`;
-        div.innerHTML = `
-            <span class="sugar-number">📝 سطر ${rowId}</span>
-            <textarea placeholder="أدخل الرغبات..." rows="2">${value}</textarea>
-            <button type="button" class="btn-remove-sugar" onclick="removeSugarRow(${rowId})">
-                ✕
-            </button>
-        `;
-
-        container.appendChild(div);
-        
-        const textarea = div.querySelector('textarea');
-        if (textarea) {
-            textarea.focus();
-        }
-
-        showAlert('تم إضافة رغبه جديد ✅', 'success');
-    }
-
-    // ==========================================
-    // REMOVE SUGAR ROW - حذف سطر سكر
-    // ==========================================
-    function removeSugarRow(rowId) {
-        const row = document.getElementById(`sugar-row-${rowId}`);
-        if (row) {
-            const container = document.getElementById('sugarRowsContainer');
-            if (container.children.length > 0) {
-                row.remove();
-                renumberSugarRows();
-                showAlert('تم حذف سطر السكر', 'warning');
-            }
+    function getPaymentData() {
+        if (currentPaymentMethod === 'number') {
+            const value = document.getElementById('paymentNumber').value.trim();
+            return { type: 'number', value: value || 'لا يوجد' };
+        } else {
+            const rows = document.querySelectorAll('#paymentTableBody tr');
+            const tableData = [];
+            rows.forEach(row => {
+                const statement = row.querySelector('.payment-statement')?.value || '';
+                const value = row.querySelector('.payment-value')?.value || '';
+                const notes = row.querySelector('.payment-notes')?.value || '';
+                if (statement || value || notes) {
+                    tableData.push({ statement, value, notes });
+                }
+            });
+            return { type: 'table', data: tableData };
         }
     }
 
     // ==========================================
-    // RENUMBER SUGAR ROWS - إعادة ترقيم سطور السكر
-    // ==========================================
-    function renumberSugarRows() {
-        const rows = document.querySelectorAll('.sugar-row-item');
-        rows.forEach((row, index) => {
-            const label = row.querySelector('.sugar-number');
-            if (label) {
-                label.textContent = `📝 سطر ${index + 1}`;
-            }
-            const oldId = row.id;
-            const newId = `sugar-row-${index + 1}`;
-            row.id = newId;
-            
-            const removeBtn = row.querySelector('.btn-remove-sugar');
-            if (removeBtn) {
-                removeBtn.setAttribute('onclick', `removeSugarRow(${index + 1})`);
-            }
-        });
-        sugarRowCounter = rows.length;
-    }
-
-    // ==========================================
-    // GET BIDS DATA - جلب بيانات فض العروض
-    // ==========================================
-    function getBidsData() {
-        const rows = document.querySelectorAll('#bidsBody tr');
-        const bids = [];
-        rows.forEach(row => {
-            const number = row.querySelector('.bid-number')?.value || '';
-            const date = row.querySelector('.bid-date')?.value || '';
-            const subject = row.querySelector('.bid-subject')?.value || '';
-            if (number || date || subject) {
-                bids.push({ number, date, subject });
-            }
-        });
-        return bids;
-    }
-
-    // ==========================================
-    // GET SUGAR DATA - جلب بيانات سطور السكر
-    // ==========================================
-    function getSugarData() {
-        const rows = document.querySelectorAll('.sugar-row-item textarea');
-        const sugars = [];
-        rows.forEach(textarea => {
-            const value = textarea.value.trim();
-            if (value) {
-                sugars.push(value);
-            }
-        });
-        return sugars;
-    }
-
-    // ==========================================
-    // SHOW ALERT - عرض رسالة
+    // SHOW ALERT
     // ==========================================
     function showAlert(message, type = 'success') {
         const alertEl = document.getElementById('alertMessage');
@@ -960,226 +867,285 @@
     }
 
     // ==========================================
-    // RESET FORM - إعادة تعيين النموذج
+    // RESET FORM
     // ==========================================
     function resetForm() {
-        document.getElementById('tenderForm').reset();
-        document.getElementById('bidsBody').innerHTML = '';
-        document.getElementById('sugarRowsContainer').innerHTML = '';
-        bidRowCounter = 0;
-        sugarRowCounter = 0;
+        document.getElementById('contractForm').reset();
+        document.getElementById('paymentTableBody').innerHTML = '';
+        paymentRowCounter = 0;
         
-        addBidRow();
+        // إعادة تعيين طريقة الدفع إلى الرقم
+        selectPaymentMethod('number');
+        document.getElementById('paymentNumber').value = '';
         
-        document.querySelectorAll('input[name="tenderStatus"]').forEach(el => el.checked = false);
-        document.querySelectorAll('.status-option').forEach(el => {
-            el.classList.remove('selected-success', 'selected-danger');
-        });
-        
+        // تعيين التواريخ الافتراضية
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('announceStart').value = today;
+        document.getElementById('startDate').value = today;
         
-        const nextWeek = new Date();
-        nextWeek.setDate(nextWeek.getDate() + 7);
-        document.getElementById('announceEnd').value = nextWeek.toISOString().split('T')[0];
+        const nextYear = new Date();
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        document.getElementById('endDate').value = nextYear.toISOString().split('T')[0];
     }
 
     // ==========================================
-    // HANDLE STATUS SELECTION - اختيار الحالة
-    // ==========================================
-    document.querySelectorAll('input[name="tenderStatus"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            document.querySelectorAll('.status-option').forEach(el => {
-                el.classList.remove('selected-success', 'selected-danger');
-            });
-            
-            if (this.value === 'success') {
-                document.getElementById('statusSuccess').classList.add('selected-success');
-                showAlert('✅ تم اختيار: تمت المناقصة بنجاح', 'success');
-            } else if (this.value === 'failed') {
-                document.getElementById('statusFailed').classList.add('selected-danger');
-                // مسح الحقول عند اختيار فشلت
-                clearFailedFields();
-            }
-        });
-    });
-
-    // ==========================================
-    // HANDLE FORM SUBMIT - معالجة إرسال النموذج
+    // HANDLE FORM SUBMIT
     // ==========================================
     function handleSubmit(event) {
         event.preventDefault();
 
-        const justificationMemo = document.getElementById('justificationMemo').value.trim();
-        const technicalSpecs = document.getElementById('technicalSpecs').value.trim();
-        const legalSpecs = document.getElementById('legalSpecs').value.trim();
-        const announceStart = document.getElementById('announceStart').value;
-        const announceEnd = document.getElementById('announceEnd').value;
-        const status = document.querySelector('input[name="tenderStatus"]:checked')?.value;
+        const contractNumber = document.getElementById('contractNumber').value;
+        const contractName = document.getElementById('contractName').value.trim();
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const directOrder = document.getElementById('directOrder').value || '-';
+        const actualEndDate = document.getElementById('actualEndDate').value || '-';
+        const subject = document.getElementById('subject').value.trim();
+        const contractValue = parseFloat(document.getElementById('contractValue').value);
+        const tasks = document.getElementById('tasks').value.trim() || '-';
+        const status = document.getElementById('contractStatus').value;
+        const type = document.getElementById('contractType').value;
 
-        if (!justificationMemo || !technicalSpecs || !legalSpecs || !announceStart || !announceEnd) {
+        // التحقق من الحقول المطلوبة
+        if (!contractNumber || !contractName || !startDate || !endDate || !subject || !contractValue || !status || !type) {
             showAlert('يرجى ملء جميع الحقول المطلوبة', 'danger');
             return;
         }
 
-        if (!status) {
-            showAlert('يرجى تحديد حالة المناقصة (تمت أو فشلت)', 'danger');
+        // التحقق من صحة التواريخ
+        if (new Date(startDate) > new Date(endDate)) {
+            showAlert('تاريخ البداية لا يمكن أن يكون بعد تاريخ النهاية', 'danger');
             return;
         }
 
-        if (new Date(announceStart) > new Date(announceEnd)) {
-            showAlert('تاريخ بداية الإعلان لا يمكن أن يكون بعد تاريخ نهاية الإعلان', 'danger');
-            return;
-        }
+        // الحصول على بيانات الدفع
+        const paymentData = getPaymentData();
 
-        const bids = getBidsData();
-        const sugars = getSugarData();
-
-        const tender = {
-            id: Date.now(),
-            justificationMemo,
-            technicalSpecs,
-            legalSpecs,
-            announceStart,
-            announceEnd,
-            bids,
-            sugars,
-            status,
+        // إنشاء كائن العقد
+        const contract = {
+            id: ++idCounter,
+            number: contractNumber,
+            name: contractName,
+            startDate: startDate,
+            endDate: endDate,
+            directOrder: directOrder,
+            actualEndDate: actualEndDate,
+            subject: subject,
+            value: contractValue,
+            paymentMethod: paymentData,
+            tasks: tasks,
+            status: status,
+            type: type,
             createdAt: new Date().toLocaleString('ar-SA')
         };
 
-        if (status === 'failed') {
-            tender.announceStart = '';
-            tender.announceEnd = '';
-            tender.bids = [];
-            tender.sugars = [];
-            
-            showAlert('تم تسجيل المناقصة كفاشلة. تم حذف تواريخ الإعلان وفض العروض والسكر.', 'warning');
-        } else {
-            showAlert('تم تسجيل المناقصة بنجاح ✅', 'success');
-        }
-
-        tenders.push(tender);
+        contracts.push(contract);
         resetForm();
-        renderTenders();
+        renderTable();
+        updateStats();
+        showAlert('تم إضافة العقد بنجاح ✅', 'success');
     }
 
     // ==========================================
-    // DELETE TENDER - حذف مناقصة
+    // DELETE CONTRACT
     // ==========================================
-    function deleteTender(id) {
-        if (confirm('هل أنت متأكد من حذف هذه المناقصة؟')) {
-            tenders = tenders.filter(t => t.id !== id);
-            renderTenders();
-            showAlert('تم حذف المناقصة', 'warning');
+    function deleteContract(id) {
+        if (confirm('هل أنت متأكد من حذف هذا العقد؟')) {
+            contracts = contracts.filter(c => c.id !== id);
+            renderTable();
+            updateStats();
+            showAlert('تم حذف العقد', 'warning');
         }
     }
 
     // ==========================================
-    // RENDER TENDERS - عرض المناقصات
+    // RENDER TABLE
     // ==========================================
-    function renderTenders() {
-        const container = document.getElementById('tendersList');
-        const countEl = document.getElementById('tenderCount');
+    function renderTable() {
+        const tbody = document.getElementById('contractsBody');
 
-        if (tenders.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="icon">📭</div>
-                    <p>لا توجد مناقصات مسجلة حتى الآن</p>
-                </div>
+        if (contracts.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="14" class="empty-state">
+                        <div class="icon">📭</div>
+                        <p>لا توجد عقود مسجلة. قم بإضافة عقد جديد من النموذج أعلاه.</p>
+                    </td>
+                </tr>
             `;
-            countEl.textContent = '0 مناقصة';
+            document.getElementById('recordCount').textContent = '0 سجل';
             return;
         }
 
         let html = '';
-        tenders.forEach((tender, index) => {
-            const statusText = tender.status === 'success' ? '✅ تمت بنجاح' : '❌ فشلت';
-            const statusClass = tender.status === 'success' ? 'success' : 'failed';
+        contracts.forEach((contract, index) => {
+            const statusClass = {
+                'completed': 'status-completed',
+                'current': 'status-current',
+                'future': 'status-future'
+            }[contract.status] || '';
+
+            const statusText = {
+                'completed': 'مكتمل',
+                'current': 'حالي',
+                'future': 'مستقبلي'
+            }[contract.status] || contract.status;
+
+            const typeClass = {
+                'current': 'type-current',
+                'investment': 'type-investment'
+            }[contract.type] || '';
+
+            const typeText = {
+                'current': 'جاري',
+                'investment': 'استثماري'
+            }[contract.type] || contract.type;
 
             const formatDate = (date) => {
-                if (!date) return '-';
+                if (!date || date === '-') return '-';
                 const d = new Date(date);
                 return d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
             };
 
-            const bidsHtml = tender.bids && tender.bids.length > 0 ? 
-                tender.bids.map((bid, i) => `
-                    <div class="tender-bid-item">
-                        <span class="bid-label">المحضر ${i + 1}:</span>
-                        ${bid.number ? `رقم: ${bid.number} | ` : ''}
-                        ${bid.date ? `تاريخ: ${formatDate(bid.date)} | ` : ''}
-                        ${bid.subject ? `موضوع: ${bid.subject}` : ''}
-                    </div>
-                `).join('') 
-            : '<p style="color: #94a3b8; font-size: 13px;">لا توجد محاضر مسجلة</p>';
-
-            const sugarsHtml = tender.sugars && tender.sugars.length > 0 ?
-                tender.sugars.map((sugar, i) => `
-                    <div class="tender-bid-item sugar">
-                        <span class="sugar-label">📝 سكر ${i + 1}:</span>
-                        ${sugar}
-                    </div>
-                `).join('')
-                : '<p style="color: #94a3b8; font-size: 13px;">لا توجد ملاحظات (سكر)</p>';
+            // عرض طريقة الدفع
+            let paymentDisplay = '';
+            if (contract.paymentMethod.type === 'number') {
+                paymentDisplay = `🔢 ${contract.paymentMethod.value}`;
+            } else {
+                const items = contract.paymentMethod.data || [];
+                if (items.length > 0) {
+                    paymentDisplay = '📊 جدول (' + items.map(item => 
+                        `${item.statement || 'بيان'}: ${item.value || '0'}`
+                    ).join(' | ') + ')';
+                } else {
+                    paymentDisplay = '📊 جدول فارغ';
+                }
+            }
 
             html += `
-                <div class="tender-item">
-                    <div class="tender-header">
-                        <div>
-                            <strong style="font-size: 16px;">مناقصة #${index + 1}</strong>
-                            <span style="font-size: 13px; color: #64748b; margin-right: 10px;">${tender.createdAt}</span>
-                        </div>
-                        <div>
-                            <span class="tender-status ${statusClass}">${statusText}</span>
-                            <button class="btn btn-danger" onclick="deleteTender(${tender.id})" 
-                                    style="padding: 4px 12px; font-size: 12px; margin-right: 8px;">
-                                🗑️ حذف
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="tender-details">
-                        <div><strong>المذكرة التبريرية:</strong> ${tender.justificationMemo}</div>
-                        <div><strong>دفتر شروط فني:</strong> ${tender.technicalSpecs}</div>
-                        <div><strong>دفتر شروط حقوقي:</strong> ${tender.legalSpecs}</div>
-                        <div><strong>تاريخ الإعلان:</strong> ${formatDate(tender.announceStart)} - ${formatDate(tender.announceEnd)}</div>
-                    </div>
-
-                    <div class="tender-bids">
-                        <strong style="font-size: 14px;">📋 فض العروض:</strong>
-                        <div style="margin-top: 8px;">
-                            ${bidsHtml}
-                        </div>
-                    </div>
-
-                    <div class="tender-bids">
-                        <strong style="font-size: 14px;">📝 سكر (ملاحظات):</strong>
-                        <div style="margin-top: 8px;">
-                            ${sugarsHtml}
-                        </div>
-                    </div>
-                </div>
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${contract.number}</strong></td>
+                    <td>${contract.name}</td>
+                    <td>${formatDate(contract.startDate)}</td>
+                    <td>${formatDate(contract.endDate)}</td>
+                    <td>${formatDate(contract.directOrder)}</td>
+                    <td>${formatDate(contract.actualEndDate)}</td>
+                    <td>${contract.subject}</td>
+                    <td>${contract.value.toLocaleString('ar-SA')} ريال</td>
+                    <td style="max-width: 200px; white-space: normal; font-size: 12px;">${paymentDisplay}</td>
+                    <td style="max-width: 150px; white-space: normal;">${contract.tasks}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteContract(${contract.id})" 
+                                style="padding: 6px 14px; font-size: 12px;">
+                            🗑️ حذف
+                        </button>
+                    </td>
+                </tr>
             `;
         });
 
-        container.innerHTML = html;
-        countEl.textContent = `${tenders.length} مناقصة`;
+        tbody.innerHTML = html;
+        document.getElementById('recordCount').textContent = `${contracts.length} سجل`;
     }
 
     // ==========================================
-    // INITIALIZE - تهيئة الصفحة
+    // UPDATE STATS
+    // ==========================================
+    function updateStats() {
+        const total = contracts.length;
+        const current = contracts.filter(c => c.status === 'current').length;
+        const completed = contracts.filter(c => c.status === 'completed').length;
+        const future = contracts.filter(c => c.status === 'future').length;
+
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('currentCount').textContent = current;
+        document.getElementById('completedCount').textContent = completed;
+        document.getElementById('futureCount').textContent = future;
+    }
+
+    // ==========================================
+    // ADD SAMPLE DATA
+    // ==========================================
+    function addSampleData() {
+        const sampleContracts = [
+            {
+                id: ++idCounter,
+                number: 1001,
+                name: 'عقد صيانة المباني',
+                startDate: '2024-01-01',
+                endDate: '2024-12-31',
+                directOrder: '2024-01-15',
+                actualEndDate: '2024-12-30',
+                subject: 'صيانة جميع مباني الشركة',
+                value: 250000,
+                paymentMethod: { type: 'number', value: 'تحويل بنكي - دفعة واحدة' },
+                tasks: 'صيانة دورية شهرية، إصلاح الأعطال، تنظيف الواجهات',
+                status: 'completed',
+                type: 'current'
+            },
+            {
+                id: ++idCounter,
+                number: 1002,
+                name: 'عقد تطوير برمجيات',
+                startDate: '2024-03-01',
+                endDate: '2024-08-31',
+                directOrder: '2024-03-10',
+                actualEndDate: '-',
+                subject: 'تطوير نظام إدارة الموارد',
+                value: 180000,
+                paymentMethod: { 
+                    type: 'table', 
+                    data: [
+                        { statement: 'دفعة أولى', value: '60000', notes: 'عند التوقيع' },
+                        { statement: 'دفعة ثانية', value: '60000', notes: 'بعد 3 أشهر' },
+                        { statement: 'دفعة أخيرة', value: '60000', notes: 'عند التسليم' }
+                    ]
+                },
+                tasks: 'تصميم قاعدة بيانات، واجهات مستخدم، اختبارات',
+                status: 'current',
+                type: 'investment'
+            },
+            {
+                id: ++idCounter,
+                number: 1003,
+                name: 'عقد خدمات أمنية',
+                startDate: '2025-01-01',
+                endDate: '2025-12-31',
+                directOrder: '2024-12-20',
+                actualEndDate: '-',
+                subject: 'تأمين المباني والمرافق',
+                value: 120000,
+                paymentMethod: { type: 'number', value: 'شيكات شهرية' },
+                tasks: 'حراسة المباني، مراقبة كاميرات، دوريات أمنية',
+                status: 'future',
+                type: 'current'
+            }
+        ];
+
+        contracts = [...contracts, ...sampleContracts];
+        renderTable();
+        updateStats();
+    }
+
+    // ==========================================
+    // INITIALIZE
     // ==========================================
     document.addEventListener('DOMContentLoaded', function() {
-        addBidRow();
+        // إضافة عينات توضيحية
+        addSampleData();
 
+        // تعيين التواريخ الافتراضية
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('announceStart').value = today;
+        document.getElementById('startDate').value = today;
         
-        const nextWeek = new Date();
-        nextWeek.setDate(nextWeek.getDate() + 7);
-        document.getElementById('announceEnd').value = nextWeek.toISOString().split('T')[0];
+        const nextYear = new Date();
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        document.getElementById('endDate').value = nextYear.toISOString().split('T')[0];
+
+        // تعيين طريقة الدفع الافتراضية
+        selectPaymentMethod('number');
     });
 </script>
 
