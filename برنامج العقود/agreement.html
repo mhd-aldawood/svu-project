@@ -110,7 +110,7 @@
                     <td><input type="text" placeholder="أدخل موضوع الاتفاقية">
                      <button class="btn print-btn" onclick="printContract()">طباعة نص العقد</button>
             <button class="btn upload-btn">
-                <span>تحميل نص العقد (TXT)</span>
+                <span>رفع نص العقد (PDF)</span>
                 <input type="file" id="txt-uploader" accept=".txt" onchange="handleFileUpload(this)">
             </button>
                     </td>
@@ -446,23 +446,24 @@
         }
 
         function toggleContentVisibility(checkboxElement) {
-            if (!activeSectionId) return;
+           if (!activeSectionId) return;
             const activeSection = document.getElementById(activeSectionId);
             
             if (checkboxElement.checked) {
-                activeSection.classList.add("hide-empty");
+              //  activeSection.classList.add("hide-empty");
                 
                 // إخفاء حاويات الدفع غير المختارة
-                const methodSelect = activeSection.querySelector(".payment-method");
-                const textCont = activeSection.querySelector(".payment-text-container");
-                const tableCont = activeSection.querySelector(".payment-table-container");
+              //  const methodSelect = activeSection.querySelector(".payment-method");
+               // const textCont = activeSection.querySelector(".payment-text-container");
+               // const tableCont = activeSection.querySelector(".payment-table-container");
                 
-                if (methodSelect && methodSelect.value !== "text") textCont.classList.add("hidden-element");
-                if (methodSelect && methodSelect.value !== "table") tableCont.classList.add("hidden-element");
-            } else {
-                activeSection.classList.remove("hide-empty");
-                const hiddenElements = activeSection.querySelectorAll(".hidden-element");
-                hiddenElements.forEach(el => el.classList.remove("hidden-element"));
+              //  if (methodSelect && methodSelect.value !== "text") textCont.classList.add("hidden-element");
+              //  if (methodSelect && methodSelect.value !== "table") tableCont.classList.add("hidden-element");
+            } 
+              else {
+               // activeSection.classList.remove("hide-empty");
+             //   const hiddenElements = activeSection.querySelectorAll(".hidden-element");
+             //   hiddenElements.forEach(el => el.classList.remove("hidden-element"));
             }
         }
 
