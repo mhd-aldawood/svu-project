@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
     <style>
+        /* ... (all your existing styles remain exactly the same) ... */
         * {
             box-sizing: border-box;
         }
@@ -234,6 +235,177 @@
             transform: translateY(1px);
         }
 
+        /* =========================
+           COST STYLES
+        ========================= */
+        .cost-value {
+            color: #344054;
+            font-weight: 600;
+        }
+
+        .cost-show-table {
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            transition: 0.2s;
+            display: inline-block;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-family: inherit;
+            padding: 0;
+        }
+
+        .cost-show-table:hover {
+            color: #1d4ed8;
+            transform: scale(1.05);
+        }
+
+        .cost-clickable {
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-block;
+        }
+
+        .cost-clickable:hover {
+            transform: scale(1.02);
+        }
+
+        /* =========================
+           MODAL
+        ========================= */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaecf0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 22px;
+            color: #1e293b;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: 0.2s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+
+        .modal-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: unset;
+        }
+
+        .modal-table th,
+        .modal-table td {
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            white-space: normal;
+            font-size: 14px;
+        }
+
+        .modal-table th {
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .modal-table td {
+            color: #1e293b;
+        }
+
+        .modal-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .modal-table tbody tr:hover {
+            background: #e2e8f0;
+        }
+
+        .modal-total {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .modal-agreement-info {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-right: 4px solid #2563eb;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .modal-agreement-info strong {
+            color: #1e293b;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 15px;
@@ -259,6 +431,17 @@
             .filter-buttons {
                 overflow-x: auto;
                 width: 100%;
+            }
+
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+            }
+
+            .modal-table th,
+            .modal-table td {
+                padding: 8px 10px;
+                font-size: 12px;
             }
         }
     </style>
@@ -432,6 +615,41 @@
 </div>
 
 
+<!-- =========================
+     MODAL
+========================== -->
+
+<div class="modal-overlay" id="costModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📊 تفاصيل التكلفة</h2>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <div class="modal-agreement-info" id="modalAgreementInfo">
+            <!-- سيتم ملؤها بواسطة JavaScript -->
+        </div>
+
+        <table class="modal-table">
+            <thead>
+                <tr>
+                    <th>عدد السنوات</th>
+                    <th>النسبة</th>
+                    <th>تفاصيل</th>
+                </tr>
+            </thead>
+            <tbody id="modalTableBody">
+                <!-- سيتم ملء البيانات بواسطة JavaScript -->
+            </tbody>
+        </table>
+
+        <div class="modal-total" id="modalTotal">
+            المجموع: 100%
+        </div>
+    </div>
+</div>
+
+
 <script>
 
     /* ==========================================
@@ -449,7 +667,8 @@
             status: "finish",
             cost: 25000,
             costDetails: "صيانة سنوية",
-            type: "current"
+            type: "current",
+            showCostTable: false  // لا يعرض جدول التكلفة
         },
 
         {
@@ -461,7 +680,8 @@
             status: "current",
             cost: 75000,
             costDetails: "التطوير والدعم الفني",
-            type: "investment"
+            type: "investment",
+            showCostTable: false  // لا يعرض جدول التكلفة
         },
 
         {
@@ -471,9 +691,10 @@
             endDate: "2027-12-31",
             workDetails: "خدمات الأمن والمراقبة",
             status: "future",
-            cost: 50000,
+            cost: null,  // لا توجد تكلفة - سيظهر زر "اظهار الجدول"
             costDetails: "خدمات أمنية",
-            type: "current"
+            type: "current",
+            showCostTable: true  // يعرض جدول التكلفة
         },
 
         {
@@ -485,7 +706,8 @@
             status: "finish",
             cost: 40000,
             costDetails: "صيانة البنية التحتية",
-            type: "investment"
+            type: "investment",
+            showCostTable: false  // لا يعرض جدول التكلفة
         },
 
         {
@@ -495,9 +717,10 @@
             endDate: "2026-08-31",
             workDetails: "خدمات تنظيف المكاتب",
             status: "current",
-            cost: 18000,
+            cost: null,  // لا توجد تكلفة - سيظهر زر "اظهار الجدول"
             costDetails: "خدمات تنظيف شهرية",
-            type: "current"
+            type: "current",
+            showCostTable: true  // يعرض جدول التكلفة
         },
 
         {
@@ -509,9 +732,21 @@
             status: "finish",
             cost: 32000,
             costDetails: "خدمات كهربائية",
-            type: "investment"
+            type: "investment",
+            showCostTable: false  // لا يعرض جدول التكلفة
         }
 
+    ];
+
+
+    /* ==========================================
+       COST DETAILS DATA (for the modal)
+    ========================================== */
+
+    const costDetailsData = [
+        { years: "أول 5 سنوات", percentage: "40%", details: "قسط الطلاب - الفترة الأولى" },
+        { years: "ثاني 3 سنوات", percentage: "30%", details: "قسط الطلاب - الفترة الثانية" },
+        { years: "ثالث 2 سنوات", percentage: "30%", details: "قسط الطلاب - الفترة الثالثة" }
     ];
 
 
@@ -544,8 +779,8 @@
     ========================================== */
 
     let activeFilters = {
-        status: null,  // يمكن أن يكون: null, "finish", "current", "future"
-        type: null     // يمكن أن يكون: null, "current", "investment"
+        status: null,
+        type: null
     };
 
 
@@ -567,17 +802,13 @@
 
     function toggleFilter(category, value) {
 
-        // إذا كان الفلتر نفسه مضغوطاً بالفعل، نقوم بإلغائه
         if (activeFilters[category] === value) {
             activeFilters[category] = null;
         } else {
             activeFilters[category] = value;
         }
 
-        // تحديث الواجهة (تحديد الأزرار النشطة)
         updateFilterButtons();
-
-        // إعادة عرض الجدول
         renderTable();
 
     }
@@ -589,14 +820,12 @@
 
     function updateFilterButtons() {
 
-        // إزالة الكلاس النشط من جميع الأزرار
         document
             .querySelectorAll(".filter-btn")
             .forEach(button => {
                 button.classList.remove("active");
             });
 
-        // إضافة الكلاس النشط للأزرار المطابقة للفلترات النشطة
         if (activeFilters.status) {
             const statusBtn = document.querySelector(
                 `[data-filter="status-${activeFilters.status}"]`
@@ -629,14 +858,12 @@
             type: null
         };
 
-        // إزالة الكلاس النشط من جميع الأزرار
         document
             .querySelectorAll(".filter-btn")
             .forEach(button => {
                 button.classList.remove("active");
             });
 
-        // إعادة عرض الجدول
         renderTable();
 
     }
@@ -645,6 +872,8 @@
     /* ==========================================
        RENDER TABLE (with AND logic)
     ========================================== */
+
+    let filteredAgreements = [];
 
     function renderTable() {
 
@@ -657,19 +886,16 @@
         tbody.innerHTML = "";
 
 
-        // تطبيق الفلترة بمنطق AND
         filteredAgreements = agreements.filter(agreement => {
 
             let match = true;
 
-            // فلترة حسب حالة الاتفاقية
             if (activeFilters.status !== null) {
                 if (agreement.status !== activeFilters.status) {
                     match = false;
                 }
             }
 
-            // فلترة حسب نوع الاتفاقية
             if (activeFilters.type !== null && match) {
                 if (agreement.type !== activeFilters.type) {
                     match = false;
@@ -712,6 +938,33 @@
                 const row =
                     document.createElement("tr");
 
+                // تحديد ما إذا كان يجب عرض زر "اظهار الجدول" أو التكلفة
+                const hasCost = agreement.cost !== null && 
+                               agreement.cost !== undefined && 
+                               agreement.cost !== 0;
+                
+                // بناء محتوى عمود التكلفة
+                let costContent = '';
+                if (hasCost && !agreement.showCostTable) {
+                    // عرض التكلفة مع إمكانية النقر لعرض الجدول
+                    costContent = `
+                        <span class="cost-clickable" onclick="openModal(${agreement.number})">
+                            <span class="cost-value">${formatCost(agreement.cost)}</span>
+                        </span>
+                    `;
+                } else if (agreement.showCostTable) {
+                    // عرض زر "اظهار الجدول"
+                    costContent = `
+                        <button class="cost-show-table" onclick="openModal(${agreement.number})">
+                            📋 اظهار الجدول
+                        </button>
+                    `;
+                } else {
+                    // عرض التكلفة بدون زر
+                    costContent = `
+                        <span class="cost-value">${formatCost(agreement.cost)}</span>
+                    `;
+                }
 
                 row.innerHTML = `
 
@@ -761,9 +1014,7 @@
                     </td>
 
                     <td>
-                        ${formatCost(
-                            agreement.cost
-                        )}
+                        ${costContent}
                     </td>
 
                     <td>
@@ -813,7 +1064,6 @@
             filteredAgreements.length;
 
 
-        // عرض عدد النتائج مع توضيح الفلترات النشطة
         let filterText = "";
         const statusLabel = activeFilters.status ? statusArabic[activeFilters.status] : null;
         const typeLabel = activeFilters.type ? typeArabic[activeFilters.type] : null;
@@ -832,6 +1082,84 @@
             `عدد الاتفاقيات: ${count}${filterText}`;
 
     }
+
+
+    /* ==========================================
+       MODAL FUNCTIONS
+    ========================================== */
+
+    function openModal(agreementNumber) {
+
+        // البحث عن الاتفاقية المحددة
+        const agreement = agreements.find(a => a.number === agreementNumber);
+
+        if (!agreement) {
+            alert("لم يتم العثور على الاتفاقية");
+            return;
+        }
+
+        // عرض معلومات الاتفاقية في النافذة
+        const costDisplay = agreement.cost ? formatCost(agreement.cost) : "غير محدد";
+        document.getElementById("modalAgreementInfo").innerHTML = `
+            <strong>رقم الاتفاقية:</strong> ${agreement.number} &nbsp;|&nbsp; 
+            <strong>اسم الاتفاقية:</strong> ${escapeHtml(agreement.name)} &nbsp;|&nbsp; 
+            <strong>التكلفة:</strong> ${costDisplay}
+        `;
+
+        // ملء الجدول بالبيانات
+        const tbody = document.getElementById("modalTableBody");
+        tbody.innerHTML = "";
+
+        let totalPercentage = 0;
+
+        costDetailsData.forEach(item => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${item.years}</td>
+                <td>${item.percentage}</td>
+                <td>${item.details}</td>
+            `;
+            tbody.appendChild(row);
+
+            // استخراج النسبة كرقم للتجميع
+            const percentageNum = parseFloat(item.percentage.replace('%', ''));
+            totalPercentage += percentageNum;
+        });
+
+        // تحديث المجموع
+        document.getElementById("modalTotal").textContent = 
+            `المجموع: ${totalPercentage}%`;
+
+        // إظهار النافذة
+        document.getElementById("costModal").classList.add("active");
+
+        // منع تمرير الصفحة الخلفية
+        document.body.style.overflow = "hidden";
+    }
+
+
+    function closeModal() {
+
+        document.getElementById("costModal").classList.remove("active");
+        document.body.style.overflow = "auto";
+
+    }
+
+
+    // إغلاق النافذة عند الضغط خارج المحتوى
+    document.getElementById("costModal").addEventListener("click", function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+
+    // إغلاق النافذة عند الضغط على زر ESC
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            closeModal();
+        }
+    });
 
 
     /* ==========================================
@@ -868,6 +1196,10 @@
     ========================================== */
 
     function formatCost(cost) {
+
+        if (cost === null || cost === undefined || cost === 0) {
+            return "";
+        }
 
         return new Intl.NumberFormat(
             "ar-SA",
@@ -927,108 +1259,157 @@
 
 
     /* ==========================================
-       EXPORT TO EXCEL
+       EXPORT TO EXCEL (UPDATED - Show only for agreements with showCostTable = true)
     ========================================== */
 
     function exportToExcel() {
 
-        if (
-            filteredAgreements.length === 0
-        ) {
-
-            alert(
-                "لا توجد بيانات لتصديرها."
-            );
-
+        if (filteredAgreements.length === 0) {
+            alert("لا توجد بيانات لتصديرها.");
             return;
-
         }
 
+        // Create workbook
+        const workbook = XLSX.utils.book_new();
 
-        const excelData =
-            filteredAgreements.map(
-                agreement => ({
+        // ========== SHEET 1: Agreements Data ==========
+        const agreementsData = filteredAgreements.map(agreement => {
+            return {
+                "رقم الاتفاقية": agreement.number,
+                "اسم الاتفاقية": agreement.name,
+                "تاريخ البدء": agreement.startDate,
+                "تاريخ الانتهاء": agreement.endDate,
+                "تفاصيل العمل": agreement.workDetails,
+                "حالة الاتفاقية": statusArabic[agreement.status],
+                "التكلفة": agreement.cost || 0,
+                "تفاصيل التكلفة": agreement.costDetails,
+                "نوع الاتفاقية": typeArabic[agreement.type],
+                "يعرض جدول التكلفة": agreement.showCostTable ? "نعم" : "لا"
+            };
+        });
 
-                    "رقم الاتفاقية":
-                        agreement.number,
-
-                    "اسم الاتفاقية":
-                        agreement.name,
-
-                    "تاريخ البدء":
-                        agreement.startDate,
-
-                    "تاريخ الانتهاء":
-                        agreement.endDate,
-
-                    "تفاصيل العمل":
-                        agreement.workDetails,
-
-                    "حالة الاتفاقية":
-                        statusArabic[
-                            agreement.status
-                        ],
-
-                    "التكلفة":
-                        agreement.cost,
-
-                    "تفاصيل التكلفة":
-                        agreement.costDetails,
-
-                    "نوع الاتفاقية":
-                        typeArabic[
-                            agreement.type
-                        ]
-
-                })
-            );
-
-
-        const worksheet =
-            XLSX.utils.json_to_sheet(
-                excelData
-            );
-
-
-        worksheet["!cols"] = [
-
+        const worksheet1 = XLSX.utils.json_to_sheet(agreementsData);
+        worksheet1["!cols"] = [
             { wch: 18 },
-
             { wch: 30 },
-
             { wch: 18 },
-
             { wch: 18 },
-
             { wch: 40 },
-
             { wch: 20 },
-
             { wch: 15 },
-
             { wch: 30 },
-
+            { wch: 20 },
             { wch: 20 }
-
         ];
 
+        XLSX.utils.book_append_sheet(workbook, worksheet1, "الاتفاقيات");
 
-        const workbook =
-            XLSX.utils.book_new();
-
-
-        XLSX.utils.book_append_sheet(
-            workbook,
-            worksheet,
-            "الاتفاقيات"
+        // ========== SHEET 2: Cost Details (Only for agreements with showCostTable = true) ==========
+        // Filter agreements that should show cost table
+        const agreementsWithCostTable = filteredAgreements.filter(
+            agreement => agreement.showCostTable === true
         );
 
+        if (agreementsWithCostTable.length > 0) {
+            const costDetailsExcel = [];
 
-        XLSX.writeFile(
-            workbook,
-            "الاتفاقيات.xlsx"
-        );
+            agreementsWithCostTable.forEach(agreement => {
+                // Add each cost detail row for this agreement
+                costDetailsData.forEach(item => {
+                    costDetailsExcel.push({
+                        "رقم الاتفاقية": agreement.number,
+                        "اسم الاتفاقية": agreement.name,
+                        "عدد السنوات": item.years,
+                        "النسبة": item.percentage,
+                        "تفاصيل": item.details
+                    });
+                });
+                
+                // Add a total row for this agreement
+                let totalPercentage = 0;
+                costDetailsData.forEach(item => {
+                    const percentageNum = parseFloat(item.percentage.replace('%', ''));
+                    totalPercentage += percentageNum;
+                });
+                
+                costDetailsExcel.push({
+                    "رقم الاتفاقية": agreement.number,
+                    "اسم الاتفاقية": agreement.name,
+                    "عدد السنوات": "المجموع الكلي",
+                    "النسبة": `${totalPercentage}%`,
+                    "تفاصيل": "---"
+                });
+                
+                // Add an empty row as separator between agreements
+                costDetailsExcel.push({
+                    "رقم الاتفاقية": "",
+                    "اسم الاتفاقية": "",
+                    "عدد السنوات": "",
+                    "النسبة": "",
+                    "تفاصيل": ""
+                });
+            });
 
+            const worksheet2 = XLSX.utils.json_to_sheet(costDetailsExcel);
+            worksheet2["!cols"] = [
+                { wch: 18 },
+                { wch: 30 },
+                { wch: 20 },
+                { wch: 15 },
+                { wch: 40 }
+            ];
+
+            XLSX.utils.book_append_sheet(workbook, worksheet2, "تفاصيل التكلفة");
+        } else {
+            // Create a sheet with a message if no agreements have cost table
+            const noData = [
+                {
+                    "ملاحظة": "لا توجد اتفاقيات تعرض جدول التكلفة",
+                    "": ""
+                }
+            ];
+            const worksheet2 = XLSX.utils.json_to_sheet(noData);
+            worksheet2["!cols"] = [
+                { wch: 50 },
+                { wch: 30 }
+            ];
+            XLSX.utils.book_append_sheet(workbook, worksheet2, "تفاصيل التكلفة");
+        }
+
+        // ========== SHEET 3: Summary ==========
+        const summaryData = [
+            {
+                "الإجمالي": "ملخص التصدير",
+                "القيمة": ""
+            },
+            {
+                "الإجمالي": "عدد الاتفاقيات المصدرة",
+                "القيمة": filteredAgreements.length
+            },
+            {
+                "الإجمالي": "عدد الاتفاقيات التي تعرض جدول التكلفة",
+                "القيمة": filteredAgreements.filter(a => a.showCostTable === true).length
+            },
+            {
+                "الإجمالي": "تاريخ التصدير",
+                "القيمة": new Date().toLocaleDateString("ar-SA")
+            },
+            {
+                "الإجمالي": "عدد بنود التكلفة",
+                "القيمة": costDetailsData.length
+            }
+        ];
+
+        const worksheet3 = XLSX.utils.json_to_sheet(summaryData);
+        worksheet3["!cols"] = [
+            { wch: 40 },
+            { wch: 30 }
+        ];
+
+        XLSX.utils.book_append_sheet(workbook, worksheet3, "ملخص");
+
+        // Export the file
+        XLSX.writeFile(workbook, "الاتفاقيات_مع_تفاصيل_التكلفة.xlsx");
     }
 
 </script>
