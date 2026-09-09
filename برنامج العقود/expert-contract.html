@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة عقود الدكتوراه</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+        .card {
+            max-width: 820px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px -12px rgba(0, 20, 40, 0.25);
+            padding: 36px 40px 44px;
+            transition: 0.2s;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0b2645;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-right: 6px solid #2a6f9c;
+            padding-right: 18px;
+        }
+        .subtitle {
+            color: #4a617c;
+            font-size: 15px;
+            margin-bottom: 32px;
+            padding-right: 24px;
+            border-bottom: 1px solid #e5edf6;
+            padding-bottom: 14px;
+        }
+        .form-group {
+            margin-bottom: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #1c3857;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-group label .required {
+            color: #c73d3d;
+            font-weight: 700;
+            margin-right: 2px;
+        }
+        .form-group label .field-type {
+            font-weight: 400;
+            color: #6d86a3;
+            font-size: 12px;
+            background: #eef3f9;
+            padding: 0 12px;
+            border-radius: 30px;
+            line-height: 22px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #d7e1ed;
+            border-radius: 14px;
+            font-size: 15px;
+            background: #fafcff;
+            transition: 0.2s;
+            color: #142b44;
+            font-family: inherit;
+        }
+        .form-control:focus {
+            border-color: #2a6f9c;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(42, 111, 156, 0.12);
+            background: #ffffff;
+        }
+        .form-control::placeholder {
+            color: #9aafc7;
+            font-weight: 300;
+            font-size: 14px;
+        }
+        textarea.form-control {
+            min-height: 88px;
+            resize: vertical;
+        }
+        .row-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .file-upload-wrapper {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: #f7faff;
+            padding: 12px 18px;
+            border-radius: 18px;
+            border: 1.5px dashed #b8cee4;
+        }
+        .file-upload-wrapper input[type="file"] {
+            flex: 1;
+            min-width: 160px;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #1f3e5f;
+            background: transparent;
+            border: none;
+        }
+        .file-upload-wrapper input[type="file"]::file-selector-button {
+            background: #e5eff9;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #1a3f62;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-left: 10px;
+        }
+        .file-upload-wrapper input[type="file"]::file-selector-button:hover {
+            background: #cdddec;
+        }
+        .upload-icon {
+            font-size: 20px;
+            color: #2a6f9c;
+        }
+        .btn-submit {
+            background: #1a3f62;
+            color: white;
+            border: none;
+            padding: 16px 34px;
+            border-radius: 40px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            margin-top: 14px;
+            letter-spacing: 0.3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 6px 14px rgba(26, 63, 98, 0.2);
+        }
+        .btn-submit:hover {
+            background: #0f2d4a;
+            transform: scale(1.01);
+            box-shadow: 0 10px 20px rgba(26, 63, 98, 0.25);
+        }
+        .btn-submit:active {
+            transform: scale(0.97);
+        }
+        .preview-box {
+            margin-top: 28px;
+            background: #f5faff;
+            border-radius: 18px;
+            padding: 18px 22px;
+            border: 1px solid #dce8f5;
+            display: none;
+        }
+        .preview-box.visible {
+            display: block;
+            animation: fadeSlide 0.25s ease-out;
+        }
+        @keyframes fadeSlide {
+            0% { opacity: 0.3; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .preview-box h3 {
+            font-size: 16px;
+            color: #1c3a5e;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 24px;
+            background: #ffffffd0;
+            padding: 14px 18px;
+            border-radius: 14px;
+        }
+        .preview-item {
+            display: flex;
+            gap: 6px;
+            font-size: 14px;
+            padding: 4px 0;
+            border-bottom: 1px dashed #e2ecf7;
+        }
+        .preview-item strong {
+            color: #1d3d62;
+            min-width: 90px;
+            font-weight: 600;
+        }
+        .preview-item span {
+            color: #1d3552;
+            word-break: break-word;
+        }
+        .file-preview {
+            margin-top: 14px;
+            background: #eef4fc;
+            padding: 10px 16px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #1a4269;
+            border: 1px solid #c6daf0;
+        }
+        @media (max-width: 650px) {
+            .card {
+                padding: 24px 18px;
+            }
+            .row-2col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            .file-upload-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>📋 عقد الدكتوراه</h1>
+    <div class="subtitle">إدخال بيانات العقد مع إمكانية إرفاق وثيقة</div>
+
+    <form id="contractForm">
+        <!-- رقم العقد (رقم) -->
+        <div class="form-group">
+            <label>
+                رقم العقد 
+                <span class="required">*</span>
+                <span class="field-type">رقم</span>
+            </label>
+            <input type="number" class="form-control" id="contractNumber" placeholder="أدخل رقم العقد (مثال: 2025-47)" required>
+        </div>
+
+        <!-- اسم الدكتور (نص) -->
+        <div class="form-group">
+            <label>
+                اسم الدكتور 
+                <span class="required">*</span>
+                <span class="field-type">نص</span>
+            </label>
+            <input type="text" class="form-control" id="doctorName" placeholder="الاسم الكامل للدكتور" required>
+        </div>
+
+        <!-- المهام (نص كتابي) -->
+        <div class="form-group">
+            <label>
+                المهام 
+                <span class="required">*</span>
+                <span class="field-type">نص كتابي</span>
+            </label>
+            <textarea class="form-control" id="tasks" placeholder="وصف المهام الموكلة للدكتور" rows="3" required></textarea>
+        </div>
+
+        <!-- رتبة الدكتور (نص) + مدة العقد (نص) في صفين -->
+        <div class="row-2col">
+            <div class="form-group">
+                <label>
+                    رتبة الدكتور 
+                    <span class="required">*</span>
+                    <span class="field-type">نص</span>
+                </label>
+                <input type="text" class="form-control" id="doctorRank" placeholder="مثل: أستاذ مشارك" required>
+            </div>
+            <div class="form-group">
+                <label>
+                    مدة العقد 
+                    <span class="required">*</span>
+                    <span class="field-type">نص</span>
+                </label>
+                <input type="text" class="form-control" id="contractDuration" placeholder="مثل: 12 شهراً" required>
+            </div>
+        </div>
+
+        <!-- أمر المباشرة (نص كتابي) -->
+        <div class="form-group">
+            <label>
+                أمر المباشرة 
+                <span class="required">*</span>
+                <span class="field-type">نص كتابي</span>
+            </label>
+            <textarea class="form-control" id="directiveOrder" placeholder="نص أمر المباشرة (التوجيه الرسمي)" rows="2" required></textarea>
+        </div>
+
+        <!-- رفع الوثيقة -->
+        <div class="form-group">
+            <label>
+                <span>📎 إرفاق الوثيقة</span>
+                <span class="field-type">ملف</span>
+            </label>
+            <div class="file-upload-wrapper">
+                <span class="upload-icon">📄</span>
+                <input type="file" id="fileUpload" accept=".pdf,.doc,.docx,.jpg,.png">
+                <span style="font-size:13px; color:#50749b;">(اختياري: PDF, Word, صورة)</span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">
+            <span>✅</span> حفظ العقد
+        </button>
+    </form>
+
+    <!-- منطقة عرض البيانات المدخلة (معاينة) -->
+    <div id="previewBox" class="preview-box">
+        <h3>📄 بيانات العقد المدخلة</h3>
+        <div class="preview-grid">
+            <div class="preview-item"><strong>رقم العقد:</strong> <span id="previewNumber">-</span></div>
+            <div class="preview-item"><strong>اسم الدكتور:</strong> <span id="previewName">-</span></div>
+            <div class="preview-item"><strong>المهام:</strong> <span id="previewTasks">-</span></div>
+            <div class="preview-item"><strong>رتبة الدكتور:</strong> <span id="previewRank">-</span></div>
+            <div class="preview-item"><strong>مدة العقد:</strong> <span id="previewDuration">-</span></div>
+            <div class="preview-item"><strong>أمر المباشرة:</strong> <span id="previewDirective">-</span></div>
+        </div>
+        <div id="filePreviewContainer" class="file-preview" style="display:none;">
+            <span>📎</span> <span id="fileNameDisplay">ملف مرفق</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const form = document.getElementById('contractForm');
+        const previewBox = document.getElementById('previewBox');
+
+        // عناصر المعاينة
+        const previewNumber = document.getElementById('previewNumber');
+        const previewName = document.getElementById('previewName');
+        const previewTasks = document.getElementById('previewTasks');
+        const previewRank = document.getElementById('previewRank');
+        const previewDuration = document.getElementById('previewDuration');
+        const previewDirective = document.getElementById('previewDirective');
+        const filePreviewContainer = document.getElementById('filePreviewContainer');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        // عند تقديم النموذج
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // جلب القيم
+            const contractNumber = document.getElementById('contractNumber').value.trim();
+            const doctorName = document.getElementById('doctorName').value.trim();
+            const tasks = document.getElementById('tasks').value.trim();
+            const doctorRank = document.getElementById('doctorRank').value.trim();
+            const contractDuration = document.getElementById('contractDuration').value.trim();
+            const directiveOrder = document.getElementById('directiveOrder').value.trim();
+            const fileInput = document.getElementById('fileUpload');
+            const file = fileInput.files[0];
+
+            // التحقق من الحقول المطلوبة (جميعها مطلوبة ما عدا الملف)
+            if (!contractNumber || !doctorName || !tasks || !doctorRank || !contractDuration || !directiveOrder) {
+                alert('يرجى ملء جميع الحقول المطلوبة (التي عليها علامة *)');
+                return;
+            }
+
+            // تحديث المعاينة
+            previewNumber.textContent = contractNumber;
+            previewName.textContent = doctorName;
+            previewTasks.textContent = tasks;
+            previewRank.textContent = doctorRank;
+            previewDuration.textContent = contractDuration;
+            previewDirective.textContent = directiveOrder;
+
+            // معاينة الملف المرفق
+            if (file) {
+                const fileName = file.name;
+                const fileSize = (file.size / 1024).toFixed(1);
+                fileNameDisplay.textContent = `${fileName} (${fileSize} كيلوبايت)`;
+                filePreviewContainer.style.display = 'inline-flex';
+            } else {
+                filePreviewContainer.style.display = 'none';
+            }
+
+            // إظهار منطقة المعاينة
+            previewBox.classList.add('visible');
+
+            // (اختياري) يمكنك هنا إرسال البيانات إلى الخادم ...
+            console.log('تم حفظ العقد:', {
+                contractNumber,
+                doctorName,
+                tasks,
+                doctorRank,
+                contractDuration,
+                directiveOrder,
+                file: file ? file.name : 'لا يوجد'
+            });
+
+            // رسالة نجاح بسيطة
+            // alert('تم حفظ العقد بنجاح ✅ (معاينة محدثة)');
+        });
+
+        // عرض اسم الملف بشكل فوري عند الاختيار (بدون إرسال)
+        document.getElementById('fileUpload').addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (file) {
+                // يمكن تحديث معاينة الملف بشكل منفصل، لكننا نفضل عرضها بعد التقديم
+                // فقط نعرض اسم الملف في الـ UI بشكل غير ملزم
+                const label = this.closest('.file-upload-wrapper').querySelector('span:last-child');
+                // لكننا لا نغير النص، بل نتركه كما هو.
+                // سيتم عرض الملف في المعاينة بعد الضغط على حفظ.
+            }
+        });
+    })();
+</script>
+
+</body>
+</html>
